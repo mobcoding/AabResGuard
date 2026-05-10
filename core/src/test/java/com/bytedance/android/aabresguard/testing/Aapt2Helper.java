@@ -15,11 +15,14 @@
  */
 package com.bytedance.android.aabresguard.testing;
 
-import com.android.tools.build.bundletool.model.Aapt2Command;
-import com.google.common.collect.ObjectArrays;
+import com.android.tools.build.bundletool.androidtools.Aapt2Command;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /** Helper for tests using aapt2. */
 public final class Aapt2Helper {
@@ -37,7 +40,20 @@ public final class Aapt2Helper {
   }
 
   private static void runAapt2(String... command) {
-    new Aapt2Command.CommandExecutor().execute(ObjectArrays.concat(AAPT2_PATH, command));
+    List<String> args = new ArrayList<>();
+    args.add(AAPT2_PATH);
+    args.addAll(Arrays.asList(command));
+    ProcessBuilder processBuilder = new ProcessBuilder(args);
+    processBuilder.inheritIO();
+    try {
+      Process process = processBuilder.start();
+      int exitCode = process.waitFor();
+      if (exitCode != 0) {
+        throw new IllegalStateException("aapt2 failed with exit code " + exitCode);
+      }
+    } catch (IOException | InterruptedException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   private Aapt2Helper() {}

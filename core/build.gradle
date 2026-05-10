@@ -23,7 +23,8 @@ configurations.all {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    compileOnly "com.android.tools.build:aapt2-proto:0.4.0"
+    compileOnly deps.aapt2Proto
+    compileOnly deps.protobufJava
     compileOnly gradleApi()
 
     implementation "com.android.support:support-annotations:24.2.0"
@@ -38,7 +39,8 @@ dependencies {
 
     testImplementation deps.gradle.agp
     testImplementation deps.bundletool
-    testImplementation "com.android.tools.build:aapt2-proto:0.4.0"
+    testImplementation deps.aapt2Proto
+    testImplementation deps.protobufJava
     testImplementation group: 'org.dom4j', name: 'dom4j', version: '2.1.0'
     testImplementation "junit:junit:4.13.2"
     testImplementation "org.junit.jupiter:junit-jupiter-api:5.12.2"

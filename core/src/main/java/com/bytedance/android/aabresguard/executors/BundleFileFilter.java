@@ -153,11 +153,11 @@ public class BundleFileFilter {
     private BundleMetadata filterMetaData() {
         BundleMetadata.Builder builder = BundleMetadata.builder();
         Stream.of(rawAppBundle.getBundleMetadata())
-                .map(BundleMetadata::getFileDataMap)
+                .map(BundleMetadata::getFileContentMap)
                 .map(ImmutableMap::entrySet)
                 .flatMap(Collection::stream)
                 .filter(entry -> {
-                    ZipPath entryZipPath = ZipPath.create(AppBundle.METADATA_DIRECTORY + "/" + entry.getKey());
+                    ZipPath entryZipPath = entry.getKey();
                     if (getMatchedFilterRule(entryZipPath) != null) {
                         System.out.println(String.format("[filter] metadata file is filtered, path: %s", entryZipPath));
                         filterTotalCount += 1;
