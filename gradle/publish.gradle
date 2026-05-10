@@ -1,61 +1,59 @@
-apply plugin: 'digital.wup.android-maven-publish'
+apply plugin: 'maven-publish'
 
-task sourcesJar(type: Jar) {
-    from sourceSets.main.java.srcDirs
-    classifier = 'sources'
-    version = versions[ARTIFACT_ID]
+group = GROUP_ID
+version = versions[ARTIFACT_ID]
+
+def releaseRepoUrl = findProperty("RELEASE_REPOSITORY_URL")
+def snapshotRepoUrl = findProperty("SNAPSHOT_REPOSITORY_URL")
+def publishUserName = findProperty("NEXUS_USERNAME")
+def publishPassword = findProperty("NEXUS_PASSWORD")
+def useLocalMaven = findProperty("useLocalMaven")?.toString()?.toBoolean() ?: false
+def localRepo = findProperty("PUBLISH_LOCAL_REPO") ?: "${rootProject.projectDir}/repo"
+
+def addRemoteRepo = { MavenArtifactRepository repo ->
+    def publishUrl = version.toString().endsWith("SNAPSHOT") ? snapshotRepoUrl : releaseRepoUrl
+    if (publishUrl) {
+        repo.url = uri(publishUrl)
+        if (publishUserName || publishPassword) {
+            repo.credentials {
+                username = publishUserName
+                password = publishPassword
+            }
+        }
+    }
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-    version = versions[ARTIFACT_ID]
+def sourcesJar = tasks.register("sourcesJar", Jar) {
+    archiveClassifier.set("sources")
+    from(sourceSets.main.allSource)
 }
 
-def releasesRepoUrl = System.getProperty("RELEASE_REPOSITORY_URL")
-def snapshotsRepoUrl = System.getProperty("SNAPSHOT_REPOSITORY_URL")
-def publishUrl = versions[ARTIFACT_ID].endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-def publishUserName = System.getProperty("NEXUS_USERNAME")
-def publishPassword = System.getProperty("NEXUS_PASSWORD")
-
-println "-------publish info---------"
-println "url: $publishUrl"
-println "username: $publishUserName"
-println "password: $publishPassword"
+def javadocJar = tasks.register("javadocJar", Jar) {
+    dependsOn(tasks.named("javadoc"))
+    archiveClassifier.set("javadoc")
+    from(tasks.named("javadoc").map { it.destinationDir })
+}
 
 publishing {
-    if (!System.getProperty("uploadToBintray", "false").equalsIgnoreCase("true")) {
-        repositories {
-            maven {
-                url = publishUrl
-                credentials {
-                    username = publishUserName
-                    password = publishPassword
-                }
-            }
-            if (System.getProperty("useLocalMaven", "false").equalsIgnoreCase("true")) {
-                maven {
-                    url = "${rootProject.projectDir}/repo"
-                }
-            }
+    publications {
+        create("mavenJava", MavenPublication) {
+            from components.java
+            groupId = GROUP_ID
+            artifactId = ARTIFACT_ID
+            version = versions[ARTIFACT_ID]
+            artifact(sourcesJar)
+            artifact(javadocJar)
         }
     }
 
-    if (project.plugins.hasPlugin("java-library") || project.plugins.hasPlugin("java")) {
-        publications {
-            MyPublication(MavenPublication) {
-                from components.java
-                artifact sourcesJar
-                artifact javadocJar
-
-                groupId GROUP_ID
-                artifactId ARTIFACT_ID
-                version versions[ARTIFACT_ID]
+    repositories {
+        if (releaseRepoUrl || snapshotRepoUrl) {
+            maven(addRemoteRepo)
+        }
+        if (useLocalMaven) {
+            maven {
+                url = uri(localRepo)
             }
         }
-    } else {
-        throw new GradleScriptException("java-library plugin required")
     }
 }
-
-apply from: "$rootDir/gradle/publish-bintray.gradle"

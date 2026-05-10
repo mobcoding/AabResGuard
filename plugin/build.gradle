@@ -1,6 +1,9 @@
-apply plugin: 'java-library'
-apply plugin: 'kotlin'
-apply plugin: "groovy"
+plugins {
+    id 'java-library'
+    id 'org.jetbrains.kotlin.jvm'
+    id 'groovy'
+}
+
 apply from: rootProject.file('gradle/publish.gradle')
 
 dependencies {
@@ -10,17 +13,21 @@ dependencies {
     compileOnly deps.gradle.agp
 
     implementation deps.kotlin.stdlib
-    implementation deps.kotlin.plugin
-    compileOnly deps.aabresguard.core
-    api(deps.aabresguard.core) {
-        exclude group: "com.google.guava", module: "guava"
-        exclude group: "com.android.tools.build", module: "gradle"
+    compileOnly project(':core')
+    api(project(':core'))
+}
+
+configurations.configureEach {
+    exclude group: "com.android.tools.build", module: "bundletool"
+}
+
+java {
+    sourceCompatibility = JavaVersion.toVersion(versions.java)
+    targetCompatibility = JavaVersion.toVersion(versions.java)
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
     }
 }
-
-configurations {
-    all*.exclude group: "com.android.tools.build", module: "bundletool"
-}
-
-sourceCompatibility = versions.java
-targetCompatibility = versions.java

@@ -1,28 +1,35 @@
 package com.bytedance.android.plugin.tasks
 
-import com.android.build.gradle.api.ApplicationVariant
-import com.android.build.gradle.internal.scope.VariantScope
 import com.bytedance.android.aabresguard.commands.ObfuscateBundleCommand
 import com.bytedance.android.plugin.extensions.AabResGuardExtension
-import com.bytedance.android.plugin.internal.getBundleFilePath
-import com.bytedance.android.plugin.internal.getSigningConfig
 import com.bytedance.android.plugin.model.SigningConfig
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import java.io.File
 import java.nio.file.Path
 
-/**
- * Created by YangJing on 2019/10/15 .
- * Email: yangjing.yeoh@bytedance.com
- */
-open class AabResGuardTask : DefaultTask() {
+abstract class AabResGuardTask : DefaultTask() {
 
-    private lateinit var variant: ApplicationVariant
+    @get:Input
+    abstract val variantName: Property<String>
+
+    @get:InputFile
+    abstract val bundleFile: RegularFileProperty
+
+    @get:OutputFile
+    abstract val obfuscatedBundleFile: RegularFileProperty
+
+    @get:Internal
     lateinit var signingConfig: SigningConfig
-    var aabResGuard: AabResGuardExtension = project.extensions.getByName("aabResGuard") as AabResGuardExtension
-    private lateinit var bundlePath: Path
-    private lateinit var obfuscatedBundlePath: Path
+
+    @get:Internal
+    val aabResGuard: AabResGuardExtension
+        get() = project.extensions.getByType(AabResGuardExtension::class.java)
 
     init {
         description = "Assemble resource proguard for bundle file"
@@ -30,66 +37,55 @@ open class AabResGuardTask : DefaultTask() {
         outputs.upToDateWhen { false }
     }
 
-    fun setVariantScope(variant:ApplicationVariant) {
-        this.variant=variant;
-        // init bundleFile, obfuscatedBundlePath must init before task action.
-        bundlePath = getBundleFilePath(project, variant)
-        obfuscatedBundlePath = File(bundlePath.toFile().parentFile, aabResGuard.obfuscatedBundleFileName).toPath()
-    }
-
-    fun getObfuscatedBundlePath(): Path {
-        return obfuscatedBundlePath
-    }
+    @Internal
+    fun getObfuscatedBundlePath(): Path = obfuscatedBundleFile.get().asFile.toPath()
 
     @TaskAction
-    private fun execute() {
+    fun executeTask() {
         println(aabResGuard.toString())
-        // init signing config
-        signingConfig = getSigningConfig(project, variant)
         printSignConfiguration()
-
         prepareUnusedFile()
 
         val command = ObfuscateBundleCommand.builder()
-                .setEnableObfuscate(aabResGuard.enableObfuscate)
-                .setBundlePath(bundlePath)
-                .setOutputPath(obfuscatedBundlePath)
-                .setMergeDuplicatedResources(aabResGuard.mergeDuplicatedRes)
-                .setWhiteList(aabResGuard.whiteList)
-                .setFilterFile(aabResGuard.enableFilterFiles)
-                .setFileFilterRules(aabResGuard.filterList)
-                .setRemoveStr(aabResGuard.enableFilterStrings)
-                .setUnusedStrPath(aabResGuard.unusedStringPath)
-                .setLanguageWhiteList(aabResGuard.languageWhiteList)
-        if (aabResGuard.mappingFile != null) {
-            command.setMappingPath(aabResGuard.mappingFile)
-        }
+            .setEnableObfuscate(aabResGuard.enableObfuscate)
+            .setBundlePath(bundleFile.get().asFile.toPath())
+            .setOutputPath(obfuscatedBundleFile.get().asFile.toPath())
+            .setMergeDuplicatedResources(aabResGuard.mergeDuplicatedRes)
+            .setWhiteList(aabResGuard.whiteList)
+            .setFilterFile(aabResGuard.enableFilterFiles)
+            .setFileFilterRules(aabResGuard.filterList)
+            .setRemoveStr(aabResGuard.enableFilterStrings)
+            .setUnusedStrPath(aabResGuard.unusedStringPath)
+            .setLanguageWhiteList(aabResGuard.languageWhiteList)
+
+        aabResGuard.mappingFile?.let { command.setMappingPath(it) }
 
         if (signingConfig.storeFile != null && signingConfig.storeFile!!.exists()) {
             command.setStoreFile(signingConfig.storeFile!!.toPath())
-                    .setKeyAlias(signingConfig.keyAlias)
-                    .setKeyPassword(signingConfig.keyPassword)
-                    .setStorePassword(signingConfig.storePassword)
+                .setKeyAlias(signingConfig.keyAlias)
+                .setKeyPassword(signingConfig.keyPassword)
+                .setStorePassword(signingConfig.storePassword)
         }
         command.build().execute()
     }
 
     private fun prepareUnusedFile() {
-        val simpleName = variant.name.replace("Release", "")
-        val name = simpleName[0].toLowerCase() + simpleName.substring(1)
-        val resourcePath = "${project.buildDir}/outputs/mapping/$name/release/unused.txt"
-        val usedFile = File(resourcePath)
+        val buildType = variantName.get().replaceFirstChar { it.uppercase() }
+            .replace("Release", "")
+        val flavorName = buildType.replaceFirstChar { it.lowercase() }
+        val resourcePath = "${project.layout.buildDirectory.get().asFile.absolutePath}/outputs/mapping/$flavorName/release/unused.txt"
+        val usedFile = project.file(resourcePath)
         if (usedFile.exists()) {
             println("find unused.txt : ${usedFile.absolutePath}")
-            if (aabResGuard.enableFilterStrings) {
-                if (aabResGuard.unusedStringPath == null || aabResGuard.unusedStringPath!!.isBlank()) {
-                    aabResGuard.unusedStringPath = usedFile.absolutePath
-                    println("replace unused.txt!")
-                }
+            if (aabResGuard.enableFilterStrings && aabResGuard.unusedStringPath.isNullOrBlank()) {
+                aabResGuard.unusedStringPath = usedFile.absolutePath
+                println("replace unused.txt!")
             }
         } else {
-            println("not exists unused.txt : ${usedFile.absolutePath}\n" +
-                    "use default path : ${aabResGuard.unusedStringPath}")
+            println(
+                "not exists unused.txt : ${usedFile.absolutePath}\n" +
+                    "use default path : ${aabResGuard.unusedStringPath}"
+            )
         }
     }
 

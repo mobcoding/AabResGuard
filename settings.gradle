@@ -1,6 +1,23 @@
-include ':core', ':plugin', ':app', ':df_module1', ':df_module2'
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    plugins {
+        id "org.jetbrains.kotlin.jvm" version "2.2.10"
+        id "com.google.protobuf" version "0.10.0"
+        id "com.gradleup.shadow" version "9.4.1"
+    }
+}
 
-settings.project(":app").projectDir = file("$rootDir/samples/app")
-settings.project(":df_module1").projectDir = file("$rootDir/samples/dynamic-features/df_module1")
-settings.project(":df_module2").projectDir = file("$rootDir/samples/dynamic-features/df_module2")
+include ':core', ':plugin'
 
+def includeSamples = startParameter.projectProperties.get("includeSamples")?.toBoolean() ?: false
+if (includeSamples) {
+    include ':app', ':df_module1', ':df_module2'
+
+    settings.project(":app").projectDir = file("$rootDir/samples/app")
+    settings.project(":df_module1").projectDir = file("$rootDir/samples/dynamic-features/df_module1")
+    settings.project(":df_module2").projectDir = file("$rootDir/samples/dynamic-features/df_module2")
+}

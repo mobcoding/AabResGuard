@@ -1,5 +1,5 @@
 ext {
-    GROUP_ID = "com.bytedance.android"
+    GROUP_ID = "com.github.zhoutianling.AabResGuard"
     bintrayInfo = [
             repo     : [
                     name       : "AabResGuard",
@@ -7,8 +7,8 @@ ext {
                     artifactId : "aabresguard",
                     description: "The tool of obfuscated aab resources",
                     packaging  : "jar",
-                    siteUrl    : "https://github.com/bytedance/AabResGuard",
-                    gitUrl     : "https://github.com/bytedance/AabResGuard.git",
+                    siteUrl    : "https://github.com/zhoutianling/AabResGuard",
+                    gitUrl     : "https://github.com/zhoutianling/AabResGuard.git",
                     userOrg    :  System.getProperty("bintrayInfo.userOrg", "****"),
             ],
             developer: [

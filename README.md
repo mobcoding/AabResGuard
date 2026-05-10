@@ -36,12 +36,12 @@ Configured in `build.gradle(root project)`
 ```gradle
 buildscript {
   repositories {
-    mavenCentral()
-    jcenter()
     google()
-   }
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+  }
   dependencies {
-    classpath "com.bytedance.android:aabresguard-plugin:0.1.0"
+    classpath "com.github.zhoutianling.AabResGuard:aabresguard-plugin:v0.1.10-agp9"
   }
 }
 ```
@@ -71,7 +71,7 @@ aabResGuard {
 
 The `aabResGuard plugin` intrudes the `bundle` packaging process and can be obfuscated by executing the original packaging commands.
 ```cmd
-./gradlew clean :app:bundleDebug --stacktrace
+./gradlew :app:bundleRelease --stacktrace
 ```
 
 Get the obfuscated `bundle` file path by `gradle` .
@@ -79,6 +79,10 @@ Get the obfuscated `bundle` file path by `gradle` .
 def aabResGuardPlugin = project.tasks.getByName("aabresguard${VARIANT_NAME}")
 Path bundlePath = aabResGuardPlugin.getObfuscatedBundlePath()
 ```
+
+### Build this fork
+- Default local build only includes the publishable `core` and `plugin` modules.
+- If you also want to open the legacy sample app modules, use `-PincludeSamples=true`.
 
 ### [Whitelist](wiki/en/WHITELIST.md)
 The resources that can not be confused. Welcome PR your configs which is not included in [WHITELIST](wiki/en/WHITELIST.md)

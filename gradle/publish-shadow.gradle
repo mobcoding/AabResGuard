@@ -1,82 +1,59 @@
-apply plugin: 'digital.wup.android-maven-publish'
-
-task sourcesJar(type: Jar) {
-    from sourceSets.main.java.srcDirs
-    classifier = 'sources'
-    version = versions[ARTIFACT_ID]
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-    version = versions[ARTIFACT_ID]
-}
-
-def releasesRepoUrl = System.getProperty("RELEASE_REPOSITORY_URL")
-def snapshotsRepoUrl = System.getProperty("SNAPSHOT_REPOSITORY_URL")
-def publishUrl = versions[ARTIFACT_ID].endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-def publishUserName = System.getProperty("NEXUS_USERNAME")
-def publishPassword = System.getProperty("NEXUS_PASSWORD")
-
-println "-------publish info---------"
-println "url: $publishUrl"
-println "username: $publishUserName"
-println "password: $publishPassword"
-
 apply plugin: 'maven-publish'
 
-def pomConfig = {
-    licenses {
-        license {
-            name "The Apache Software License, Version 2.0"
-            url "http://www.apache.org/licenses/LICENSE-2.0.txt"
-            distribution "repo"
+group = GROUP_ID
+version = versions[ARTIFACT_ID]
+
+def releaseRepoUrl = findProperty("RELEASE_REPOSITORY_URL")
+def snapshotRepoUrl = findProperty("SNAPSHOT_REPOSITORY_URL")
+def publishUserName = findProperty("NEXUS_USERNAME")
+def publishPassword = findProperty("NEXUS_PASSWORD")
+def useLocalMaven = findProperty("useLocalMaven")?.toString()?.toBoolean() ?: false
+def localRepo = findProperty("PUBLISH_LOCAL_REPO") ?: "${rootProject.projectDir}/repo"
+
+def addRemoteRepo = { MavenArtifactRepository repo ->
+    def publishUrl = version.toString().endsWith("SNAPSHOT") ? snapshotRepoUrl : releaseRepoUrl
+    if (publishUrl) {
+        repo.url = uri(publishUrl)
+        if (publishUserName || publishPassword) {
+            repo.credentials {
+                username = publishUserName
+                password = publishPassword
+            }
         }
     }
-    developers {
-        developer {
-            id bintrayInfo.developer.id
-            name bintrayInfo.developer.name
-            email bintrayInfo.developer.email
-        }
-    }
-    scm {
-        url bintrayInfo.repo.siteUrl
-    }
+}
+
+def sourcesJar = tasks.register("sourcesJar", Jar) {
+    archiveClassifier.set("sources")
+    from(sourceSets.main.allSource)
+}
+
+def javadocJar = tasks.register("javadocJar", Jar) {
+    dependsOn(tasks.named("javadoc"))
+    archiveClassifier.set("javadoc")
+    from(tasks.named("javadoc").map { it.destinationDir })
 }
 
 publishing {
     publications {
-        MyPublication(MavenPublication) { publication ->
-            project.shadow.component(publication)
-            groupId GROUP_ID
-            artifactId ARTIFACT_ID
-            version versions[ARTIFACT_ID]
-
-            artifact sourcesJar
-            artifact javadocJar
-
-            pom.withXml {
-                def root = asNode()
-                root.appendNode('description', bintrayInfo.repo.description)
-                root.appendNode('name', bintrayInfo.repo.name)
-                root.appendNode('url', bintrayInfo.repo.siteUrl)
-                root.children().last() + pomConfig
-            }
+        create("mavenJava", MavenPublication) {
+            groupId = GROUP_ID
+            artifactId = ARTIFACT_ID
+            version = versions[ARTIFACT_ID]
+            artifact(tasks.named("shadowJar"))
+            artifact(sourcesJar)
+            artifact(javadocJar)
         }
     }
 
-    if (!System.getProperty("uploadToBintray", "false").equalsIgnoreCase("true")) {
-        repositories {
+    repositories {
+        if (releaseRepoUrl || snapshotRepoUrl) {
+            maven(addRemoteRepo)
+        }
+        if (useLocalMaven) {
             maven {
-                url = publishUrl
-                credentials {
-                    username = publishUserName
-                    password = publishPassword
-                }
+                url = uri(localRepo)
             }
         }
     }
 }
-
-apply from: "$rootDir/gradle/publish-bintray.gradle"
