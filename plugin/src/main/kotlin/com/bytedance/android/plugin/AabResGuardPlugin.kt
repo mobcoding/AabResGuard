@@ -30,13 +30,9 @@ class AabResGuardPlugin : Plugin<Project> {
                 task.variantName.set(variant.name)
                 task.bundleFile.set(bundleFile)
                 task.obfuscatedBundleFile.set(
-                    bundleFile.map {
-                        project.layout.file(
-                            project.provider {
-                                it.asFile.resolveSibling(extension.obfuscatedBundleFileName)
-                            }
-                        ).get()
-                    }
+                    project.layout.buildDirectory.file(
+                        "outputs/aabresguard/${variant.name}/${extension.obfuscatedBundleFileName}"
+                    )
                 )
                 task.signingConfig = resolveSigningConfig(android, variant)
             }

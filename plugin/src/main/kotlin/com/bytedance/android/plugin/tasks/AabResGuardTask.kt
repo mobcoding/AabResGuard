@@ -44,6 +44,7 @@ abstract class AabResGuardTask : DefaultTask() {
     fun executeTask() {
         println(aabResGuard.toString())
         printSignConfiguration()
+        prepareOutputDir()
         prepareUnusedFile()
 
         val command = ObfuscateBundleCommand.builder()
@@ -67,6 +68,14 @@ abstract class AabResGuardTask : DefaultTask() {
                 .setStorePassword(signingConfig.storePassword)
         }
         command.build().execute()
+    }
+
+    private fun prepareOutputDir() {
+        val outputDir = obfuscatedBundleFile.get().asFile.parentFile
+        if (outputDir.exists()) {
+            outputDir.deleteRecursively()
+        }
+        outputDir.mkdirs()
     }
 
     private fun prepareUnusedFile() {
