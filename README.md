@@ -98,8 +98,8 @@ configure<AabResGuardExtension> {
 
 ```kotlin
 configure<AabResGuardExtension> {
-    // 上一版生成的 resources-mapping.txt，用于增量混淆。
-    mappingFile = file("aabresguard/resources-mapping.txt").toPath()
+    // 用于增量混淆的上一版 mapping 文件。
+    mappingFile = file("mapping.txt").toPath()
 
     whiteList = setOf(
         "*.R.raw.*",
@@ -113,7 +113,7 @@ configure<AabResGuardExtension> {
 }
 ```
 
-`mappingFile` 是上一次构建的输入文件，不是本次输出路径。请将新生成的 `resources-mapping.txt` 归档到不会被 `build/` 清理的位置，再在下一次构建中作为输入使用。
+`mappingFile` 是上一次构建的输入文件，不是本次输出路径。请将新生成的 `resources-mapping.txt` 归档后复制为模块目录下的 `mapping.txt`，再在下一次构建中作为输入使用。
 
 ## 构建与输出
 
