@@ -2,6 +2,7 @@ package com.bytedance.android.plugin.tasks
 
 import com.bytedance.android.aabresguard.commands.ObfuscateBundleCommand
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
@@ -9,10 +10,8 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.PathSensitive
-import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import java.io.File
 import java.nio.file.Path
 
 abstract class AabResGuardTask : DefaultTask() {
@@ -26,13 +25,14 @@ abstract class AabResGuardTask : DefaultTask() {
     @get:OutputFile
     abstract val obfuscatedBundleFile: RegularFileProperty
 
+    @get:OutputFile
+    abstract val resourceMappingFile: RegularFileProperty
+
     @get:Input
     abstract val enableObfuscate: Property<Boolean>
 
-    @get:Optional
-    @get:InputFile
-    @get:PathSensitive(PathSensitivity.NONE)
-    abstract val mappingFile: RegularFileProperty
+    @get:Input
+    abstract val mappingFilePath: Property<String>
 
     @get:Input
     abstract val whiteList: SetProperty<String>
@@ -83,7 +83,8 @@ abstract class AabResGuardTask : DefaultTask() {
     fun executeTask() {
         printConfiguration()
         printSignConfiguration()
-        prepareOutputDir()
+        val mappingFile = resolveMappingFile()
+        prepareOutputFiles(mappingFile)
         val unusedStringPath = resolveUnusedStringPath()
 
         val command = ObfuscateBundleCommand.builder()
@@ -98,7 +99,7 @@ abstract class AabResGuardTask : DefaultTask() {
             .setUnusedStrPath(unusedStringPath)
             .setLanguageWhiteList(languageWhiteList.get())
 
-        mappingFile.orNull?.asFile?.toPath()?.let { command.setMappingPath(it) }
+        mappingFile?.let { command.setMappingPath(it) }
 
         val storeFile = signingStoreFile.orNull?.asFile
         if (storeFile != null && storeFile.exists()) {
@@ -110,12 +111,50 @@ abstract class AabResGuardTask : DefaultTask() {
         command.build().execute()
     }
 
-    private fun prepareOutputDir() {
-        val outputDir = obfuscatedBundleFile.get().asFile.parentFile
-        if (outputDir.exists()) {
-            outputDir.deleteRecursively()
+    private fun prepareOutputFiles(mappingInput: Path?) {
+        val bundle = bundleFile.get().asFile.absoluteFile
+        val obfuscatedBundle = obfuscatedBundleFile.get().asFile.absoluteFile
+        if (bundle == obfuscatedBundle) {
+            throw GradleException("obfuscatedBundleFileName must differ from the input bundle file name")
         }
-        outputDir.mkdirs()
+
+        val outputMapping = resourceMappingFile.get().asFile.absoluteFile
+        if (mappingInput?.toFile()?.absoluteFile == outputMapping) {
+            throw GradleException(
+                "mappingFile must be archived outside the Bundle output directory before incremental obfuscation"
+            )
+        }
+
+        val outputDir = obfuscatedBundle.parentFile
+        if (!outputDir.exists() && !outputDir.mkdirs()) {
+            throw GradleException("Unable to create AabResGuard output directory: $outputDir")
+        }
+
+        deleteOutputFile(obfuscatedBundle)
+        deleteOutputFile(outputMapping)
+        outputDir.listFiles { _, name -> name.endsWith("-duplicated.txt") }
+            ?.forEach(::deleteOutputFile)
+    }
+
+    private fun deleteOutputFile(file: File) {
+        if (file.exists() && !file.delete()) {
+            throw GradleException("Unable to delete stale AabResGuard output: $file")
+        }
+    }
+
+    private fun resolveMappingFile(): Path? {
+        val configuredPath = mappingFilePath.get()
+        if (configuredPath.isBlank()) {
+            return null
+        }
+
+        val file = File(configuredPath)
+        if (file.isFile) {
+            return file.toPath()
+        }
+
+        println("not exists mapping file : ${file.absolutePath}")
+        return null
     }
 
     private fun resolveUnusedStringPath(): String {
@@ -140,7 +179,7 @@ abstract class AabResGuardTask : DefaultTask() {
         println(
             "AabResGuardExtension\n" +
                 "\tenableObfuscate=${enableObfuscate.get()}\n" +
-                "\tmappingFile=${mappingFile.orNull?.asFile}\n" +
+                "\tmappingFile=${mappingFilePath.get().ifBlank { null }}\n" +
                 "\twhiteList=${whiteList.get()}\n" +
                 "\tobfuscatedBundleFileName=${obfuscatedBundleFile.get().asFile.name}\n" +
                 "\tmergeDuplicatedRes=${mergeDuplicatedRes.get()}\n" +

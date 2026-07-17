@@ -1,6 +1,11 @@
 **[English](CHANGELOG.md)** | [简体中文](../zh-cn/CHANGELOG.md)
 
 # Change log
+## v0.1.14 (2026/07/18)
+- Restore the official behavior: the obfuscated AAB and sidecar logs are emitted next to the AGP Bundle output.
+- Preserve the original Bundle output while cleaning only stale AabResGuard artifacts.
+- Treat a missing configured mapping file as a first full obfuscation, matching the upstream plugin behavior.
+
 ## v0.1.13 (2026/07/17)
 - Publish the AGP 9 fork to JitPack under `com.github.mobcoding.AabResGuard`.
 - Remove the `-agp9` suffix from the release version.

@@ -1,6 +1,11 @@
 [English](../en/CHANGELOG.md) | **[简体中文](CHANGELOG.md)**
 
 # 版本日志
+## v0.1.14（2026/07/18）
+- 恢复官方输出行为：混淆后的 AAB 与日志文件输出到 AGP Bundle 产物同级目录。
+- 保留原始 Bundle，只清理旧的 AabResGuard 产物。
+- 配置的 mapping 文件不存在时按首次全量混淆处理，与上游插件行为一致。
+
 ## v0.1.13（2026/07/17）
 - 以 `com.github.mobcoding.AabResGuard` 坐标发布 AGP 9 版本到 JitPack。
 - 版本号移除 `-agp9` 后缀。

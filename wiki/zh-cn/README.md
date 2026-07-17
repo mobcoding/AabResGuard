@@ -33,7 +33,7 @@
 - **Gradle plugin：** 支持 `gradle plugin`，使用原始打包命令执行混淆。
 
 ### Gradle plugin
-当前版本为 `v0.1.13`。Maven 坐标保留 Git tag 的 `v` 前缀，但不再使用 `-agp9` 后缀。
+当前版本为 `v0.1.14`。Maven 坐标保留 Git tag 的 `v` 前缀，但不再使用 `-agp9` 后缀。
 
 Groovy 根工程 `build.gradle`：
 ```gradle
@@ -44,7 +44,7 @@ buildscript {
     maven { url 'https://jitpack.io' }
   }
   dependencies {
-    classpath "com.github.mobcoding.AabResGuard:aabresguard-plugin:v0.1.13"
+    classpath "com.github.mobcoding.AabResGuard:aabresguard-plugin:v0.1.14"
   }
 }
 ```
@@ -61,7 +61,7 @@ pluginManagement {
     resolutionStrategy {
         eachPlugin {
             if (requested.id.id == "com.bytedance.android.aabResGuard") {
-                useModule("com.github.mobcoding.AabResGuard:aabresguard-plugin:v0.1.13")
+                useModule("com.github.mobcoding.AabResGuard:aabresguard-plugin:v0.1.14")
             }
         }
     }
@@ -112,7 +112,7 @@ aabResGuard {
 ./gradlew :app:bundleRelease --stacktrace
 ```
 
-原始 AAB 位于 `build/outputs/bundle/<variant>/`，混淆后的 AAB 独立输出到 `build/outputs/aabresguard/<variant>/<obfuscatedBundleFileName>`。CI 和 Play 上传路径需要指向后者。
+原始 AAB、混淆后的 AAB 与 `resources-mapping.txt` 均位于 `build/outputs/bundle/<variant>/`。CI 和 Play 上传路径需要指向 `<obfuscatedBundleFileName>`，而不是原始 AAB。
 
 生产 release 必须在 Android DSL 中配置正式签名。AabResGuard 会重新签名独立输出的 AAB，必须使用与原始 bundle 相同的 release key。
 

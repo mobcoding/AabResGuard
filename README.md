@@ -23,7 +23,7 @@
 
 ## 快速接入
 
-当前版本为 `v0.1.13`。坐标保留 Git Tag 的 `v` 前缀，不再使用 `-agp9` 后缀。
+当前版本为 `v0.1.14`。坐标保留 Git Tag 的 `v` 前缀，不再使用 `-agp9` 后缀。
 
 ### Groovy DSL
 
@@ -37,7 +37,7 @@ buildscript {
     maven { url 'https://jitpack.io' }
   }
   dependencies {
-    classpath "com.github.mobcoding.AabResGuard:aabresguard-plugin:v0.1.13"
+    classpath "com.github.mobcoding.AabResGuard:aabresguard-plugin:v0.1.14"
   }
 }
 ```
@@ -68,7 +68,7 @@ pluginManagement {
         eachPlugin {
             if (requested.id.id == "com.bytedance.android.aabResGuard") {
                 useModule(
-                    "com.github.mobcoding.AabResGuard:aabresguard-plugin:v0.1.13"
+                    "com.github.mobcoding.AabResGuard:aabresguard-plugin:v0.1.14"
                 )
             }
         }
@@ -126,7 +126,8 @@ configure<AabResGuardExtension> {
 插件会在 Bundle 构建结束后执行 `aabresguardRelease`。默认输出位置为：
 
 ```text
-app/build/outputs/aabresguard/release/
+app/build/outputs/bundle/release/
+├── app-release.aab
 ├── app-resguard.aab
 └── resources-mapping.txt
 ```
