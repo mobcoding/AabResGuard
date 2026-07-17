@@ -1,6 +1,10 @@
 **[English](CHANGELOG.md)** | [简体中文](../zh-cn/CHANGELOG.md)
 
 # Change log
+## v0.1.15 (2026/07/18)
+- Avoid querying the AGP Bundle artifact provider before `sign<Variant>Bundle` completes.
+- Keep official Bundle-directory output semantics through the deterministic variant output directory.
+
 ## v0.1.14 (2026/07/18)
 - Restore the official behavior: the obfuscated AAB and sidecar logs are emitted next to the AGP Bundle output.
 - Preserve the original Bundle output while cleaning only stale AabResGuard artifacts.

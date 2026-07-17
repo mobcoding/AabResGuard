@@ -9,7 +9,6 @@ import com.bytedance.android.plugin.tasks.AabResGuardTask
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import java.io.File
 
 class AabResGuardPlugin : Plugin<Project> {
 
@@ -27,22 +26,18 @@ class AabResGuardPlugin : Plugin<Project> {
 
             val extension = project.extensions.getByType(AabResGuardExtension::class.java)
             val bundleFile = variant.artifacts.get(SingleArtifact.BUNDLE)
-            val outputDirectory = bundleFile.map { it.asFile.parentFile }
+            val bundleOutputDirectory = "outputs/bundle/${variant.name}"
             val taskProvider = project.tasks.register(taskName, AabResGuardTask::class.java) { task ->
                 task.variantName.set(variant.name)
                 task.bundleFile.set(bundleFile)
                 task.obfuscatedBundleFile.set(
-                    project.layout.file(
-                        outputDirectory.map { directory ->
-                            File(directory, extension.obfuscatedBundleFileName)
-                        }
+                    project.layout.buildDirectory.file(
+                        "$bundleOutputDirectory/${extension.obfuscatedBundleFileName}"
                     )
                 )
                 task.resourceMappingFile.set(
-                    project.layout.file(
-                        outputDirectory.map { directory ->
-                            File(directory, "resources-mapping.txt")
-                        }
+                    project.layout.buildDirectory.file(
+                        "$bundleOutputDirectory/resources-mapping.txt"
                     )
                 )
                 task.enableObfuscate.set(extension.enableObfuscate)

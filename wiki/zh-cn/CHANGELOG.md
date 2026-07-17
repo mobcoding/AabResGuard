@@ -1,6 +1,10 @@
 [English](../en/CHANGELOG.md) | **[简体中文](CHANGELOG.md)**
 
 # 版本日志
+## v0.1.15（2026/07/18）
+- 避免在 `sign<Variant>Bundle` 完成前查询 AGP Bundle 产物 Provider。
+- 使用确定性的 variant Bundle 输出目录，继续保持官网同级输出语义。
+
 ## v0.1.14（2026/07/18）
 - 恢复官方输出行为：混淆后的 AAB 与日志文件输出到 AGP Bundle 产物同级目录。
 - 保留原始 Bundle，只清理旧的 AabResGuard 产物。

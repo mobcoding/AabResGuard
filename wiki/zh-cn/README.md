@@ -33,7 +33,7 @@
 - **Gradle plugin：** 支持 `gradle plugin`，使用原始打包命令执行混淆。
 
 ### Gradle plugin
-当前版本为 `v0.1.14`。Maven 坐标保留 Git tag 的 `v` 前缀，但不再使用 `-agp9` 后缀。
+当前版本为 `v0.1.15`。Maven 坐标保留 Git tag 的 `v` 前缀，但不再使用 `-agp9` 后缀。
 
 Groovy 根工程 `build.gradle`：
 ```gradle
@@ -44,7 +44,7 @@ buildscript {
     maven { url 'https://jitpack.io' }
   }
   dependencies {
-    classpath "com.github.mobcoding.AabResGuard:aabresguard-plugin:v0.1.14"
+    classpath "com.github.mobcoding.AabResGuard:aabresguard-plugin:v0.1.15"
   }
 }
 ```
@@ -61,7 +61,7 @@ pluginManagement {
     resolutionStrategy {
         eachPlugin {
             if (requested.id.id == "com.bytedance.android.aabResGuard") {
-                useModule("com.github.mobcoding.AabResGuard:aabresguard-plugin:v0.1.14")
+                useModule("com.github.mobcoding.AabResGuard:aabresguard-plugin:v0.1.15")
             }
         }
     }
