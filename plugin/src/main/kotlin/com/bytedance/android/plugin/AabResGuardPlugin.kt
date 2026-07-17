@@ -34,7 +34,31 @@ class AabResGuardPlugin : Plugin<Project> {
                         "outputs/aabresguard/${variant.name}/${extension.obfuscatedBundleFileName}"
                     )
                 )
-                task.signingConfig = resolveSigningConfig(android, variant)
+                task.enableObfuscate.set(extension.enableObfuscate)
+                task.mappingFile.fileValue(extension.mappingFile?.toFile())
+                task.whiteList.set(extension.whiteList.orEmpty())
+                task.mergeDuplicatedRes.set(extension.mergeDuplicatedRes)
+                task.enableFilterFiles.set(extension.enableFilterFiles)
+                task.filterList.set(extension.filterList.orEmpty())
+                task.enableFilterStrings.set(extension.enableFilterStrings)
+                task.unusedStringPath.set(extension.unusedStringPath.orEmpty())
+                task.languageWhiteList.set(extension.languageWhiteList.orEmpty())
+
+                val flavorName = variant.name
+                    .replaceFirstChar { it.uppercase() }
+                    .replace("Release", "")
+                    .replaceFirstChar { it.lowercase() }
+                task.defaultUnusedStringFile.set(
+                    project.layout.buildDirectory.file(
+                        "outputs/mapping/$flavorName/release/unused.txt"
+                    )
+                )
+
+                val signingConfig = resolveSigningConfig(android, variant)
+                task.signingStoreFile.fileValue(signingConfig.storeFile)
+                task.signingStorePassword.set(signingConfig.storePassword.orEmpty())
+                task.signingKeyAlias.set(signingConfig.keyAlias.orEmpty())
+                task.signingKeyPassword.set(signingConfig.keyPassword.orEmpty())
             }
 
             project.tasks.findByName(bundleTaskName)?.finalizedBy(taskProvider)

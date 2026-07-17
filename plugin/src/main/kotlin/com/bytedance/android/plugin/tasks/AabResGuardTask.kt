@@ -1,15 +1,17 @@
 package com.bytedance.android.plugin.tasks
 
 import com.bytedance.android.aabresguard.commands.ObfuscateBundleCommand
-import com.bytedance.android.plugin.extensions.AabResGuardExtension
-import com.bytedance.android.plugin.model.SigningConfig
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import java.nio.file.Path
 
@@ -24,12 +26,49 @@ abstract class AabResGuardTask : DefaultTask() {
     @get:OutputFile
     abstract val obfuscatedBundleFile: RegularFileProperty
 
-    @get:Internal
-    lateinit var signingConfig: SigningConfig
+    @get:Input
+    abstract val enableObfuscate: Property<Boolean>
+
+    @get:Optional
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.NONE)
+    abstract val mappingFile: RegularFileProperty
+
+    @get:Input
+    abstract val whiteList: SetProperty<String>
+
+    @get:Input
+    abstract val mergeDuplicatedRes: Property<Boolean>
+
+    @get:Input
+    abstract val enableFilterFiles: Property<Boolean>
+
+    @get:Input
+    abstract val filterList: SetProperty<String>
+
+    @get:Input
+    abstract val enableFilterStrings: Property<Boolean>
+
+    @get:Input
+    abstract val unusedStringPath: Property<String>
+
+    @get:Input
+    abstract val languageWhiteList: SetProperty<String>
 
     @get:Internal
-    val aabResGuard: AabResGuardExtension
-        get() = project.extensions.getByType(AabResGuardExtension::class.java)
+    abstract val defaultUnusedStringFile: RegularFileProperty
+
+    @get:Internal
+    abstract val signingStoreFile: RegularFileProperty
+
+    @get:Internal
+    abstract val signingStorePassword: Property<String>
+
+    @get:Internal
+    abstract val signingKeyAlias: Property<String>
+
+    @get:Internal
+    abstract val signingKeyPassword: Property<String>
 
     init {
         description = "Assemble resource proguard for bundle file"
@@ -42,30 +81,31 @@ abstract class AabResGuardTask : DefaultTask() {
 
     @TaskAction
     fun executeTask() {
-        println(aabResGuard.toString())
+        printConfiguration()
         printSignConfiguration()
         prepareOutputDir()
-        prepareUnusedFile()
+        val unusedStringPath = resolveUnusedStringPath()
 
         val command = ObfuscateBundleCommand.builder()
-            .setEnableObfuscate(aabResGuard.enableObfuscate)
+            .setEnableObfuscate(enableObfuscate.get())
             .setBundlePath(bundleFile.get().asFile.toPath())
             .setOutputPath(obfuscatedBundleFile.get().asFile.toPath())
-            .setMergeDuplicatedResources(aabResGuard.mergeDuplicatedRes)
-            .setWhiteList(aabResGuard.whiteList)
-            .setFilterFile(aabResGuard.enableFilterFiles)
-            .setFileFilterRules(aabResGuard.filterList)
-            .setRemoveStr(aabResGuard.enableFilterStrings)
-            .setUnusedStrPath(aabResGuard.unusedStringPath)
-            .setLanguageWhiteList(aabResGuard.languageWhiteList)
+            .setMergeDuplicatedResources(mergeDuplicatedRes.get())
+            .setWhiteList(whiteList.get())
+            .setFilterFile(enableFilterFiles.get())
+            .setFileFilterRules(filterList.get())
+            .setRemoveStr(enableFilterStrings.get())
+            .setUnusedStrPath(unusedStringPath)
+            .setLanguageWhiteList(languageWhiteList.get())
 
-        aabResGuard.mappingFile?.let { command.setMappingPath(it) }
+        mappingFile.orNull?.asFile?.toPath()?.let { command.setMappingPath(it) }
 
-        if (signingConfig.storeFile != null && signingConfig.storeFile!!.exists()) {
-            command.setStoreFile(signingConfig.storeFile!!.toPath())
-                .setKeyAlias(signingConfig.keyAlias)
-                .setKeyPassword(signingConfig.keyPassword)
-                .setStorePassword(signingConfig.storePassword)
+        val storeFile = signingStoreFile.orNull?.asFile
+        if (storeFile != null && storeFile.exists()) {
+            command.setStoreFile(storeFile.toPath())
+                .setKeyAlias(signingKeyAlias.get())
+                .setKeyPassword(signingKeyPassword.get())
+                .setStorePassword(signingStorePassword.get())
         }
         command.build().execute()
     }
@@ -78,32 +118,46 @@ abstract class AabResGuardTask : DefaultTask() {
         outputDir.mkdirs()
     }
 
-    private fun prepareUnusedFile() {
-        val buildType = variantName.get().replaceFirstChar { it.uppercase() }
-            .replace("Release", "")
-        val flavorName = buildType.replaceFirstChar { it.lowercase() }
-        val resourcePath = "${project.layout.buildDirectory.get().asFile.absolutePath}/outputs/mapping/$flavorName/release/unused.txt"
-        val usedFile = project.file(resourcePath)
+    private fun resolveUnusedStringPath(): String {
+        val configuredPath = unusedStringPath.get()
+        val usedFile = defaultUnusedStringFile.get().asFile
         if (usedFile.exists()) {
             println("find unused.txt : ${usedFile.absolutePath}")
-            if (aabResGuard.enableFilterStrings && aabResGuard.unusedStringPath.isNullOrBlank()) {
-                aabResGuard.unusedStringPath = usedFile.absolutePath
+            if (enableFilterStrings.get() && configuredPath.isBlank()) {
                 println("replace unused.txt!")
+                return usedFile.absolutePath
             }
         } else {
             println(
                 "not exists unused.txt : ${usedFile.absolutePath}\n" +
-                    "use default path : ${aabResGuard.unusedStringPath}"
+                    "use default path : $configuredPath"
             )
         }
+        return configuredPath
+    }
+
+    private fun printConfiguration() {
+        println(
+            "AabResGuardExtension\n" +
+                "\tenableObfuscate=${enableObfuscate.get()}\n" +
+                "\tmappingFile=${mappingFile.orNull?.asFile}\n" +
+                "\twhiteList=${whiteList.get()}\n" +
+                "\tobfuscatedBundleFileName=${obfuscatedBundleFile.get().asFile.name}\n" +
+                "\tmergeDuplicatedRes=${mergeDuplicatedRes.get()}\n" +
+                "\tenableFilterFiles=${enableFilterFiles.get()}\n" +
+                "\tfilterList=${filterList.get()}\n" +
+                "\tenableFilterStrings=${enableFilterStrings.get()}\n" +
+                "\tunusedStringPath=${unusedStringPath.get()}\n" +
+                "\tlanguageWhiteList=${languageWhiteList.get()}"
+        )
     }
 
     private fun printSignConfiguration() {
         println("-------------- sign configuration --------------")
-        println("\tstoreFile : ${signingConfig.storeFile}")
-        println("\tkeyPassword : ${encrypt(signingConfig.keyPassword)}")
-        println("\talias : ${encrypt(signingConfig.keyAlias)}")
-        println("\tstorePassword : ${encrypt(signingConfig.storePassword)}")
+        println("\tstoreFile : ${signingStoreFile.orNull?.asFile}")
+        println("\tkeyPassword : ${encrypt(signingKeyPassword.get())}")
+        println("\talias : ${encrypt(signingKeyAlias.get())}")
+        println("\tstorePassword : ${encrypt(signingStorePassword.get())}")
         println("-------------- sign configuration --------------")
     }
 

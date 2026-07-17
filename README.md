@@ -4,13 +4,15 @@
   <p align="center" style="font-size: 0.3em">The tool of obfuscated aab resources</p>
 </h1>
 
-[ ![Download](https://api.bintray.com/packages/yeoh/maven/aabresguard-core/images/download.svg) ](https://bintray.com/yeoh/maven/aabresguard-plugin/)
+[![JitPack](https://jitpack.io/v/mobcoding/AabResGuard.svg)](https://jitpack.io/#mobcoding/AabResGuard)
 [![License](https://img.shields.io/badge/license-Apache2.0-brightgreen)](LICENSE)
-[![Bundletool](https://img.shields.io/badge/Dependency-Bundletool/0.10.0-blue)](https://github.com/google/bundletool)
+[![Bundletool](https://img.shields.io/badge/Dependency-Bundletool/1.18.3-blue)](https://github.com/google/bundletool)
 
 **[English](README.md)** | [简体中文](wiki/zh-cn/README.md)
 
 > Powered by bytedance douyin android team.
+
+This fork is maintained at [mobcoding/AabResGuard](https://github.com/mobcoding/AabResGuard), targets AGP 9, and is published through JitPack.
 
 ## Features
 > The tool of obfuscated aab resources.
@@ -32,7 +34,9 @@ For more data details, please go to **[Data of size savings](wiki/en/DATA.md)**.
 - **Gradle plugin:** Support for `gradle plugin`, using the original packaging command to execute obfuscation.
 
 ### Gradle plugin
-Configured in `build.gradle(root project)`
+The current release is `v0.1.13`. The Maven coordinate keeps the `v` prefix to match the Git tag; it no longer uses an `-agp9` suffix.
+
+For a Groovy root `build.gradle`:
 ```gradle
 buildscript {
   repositories {
@@ -41,12 +45,48 @@ buildscript {
     maven { url 'https://jitpack.io' }
   }
   dependencies {
-    classpath "com.github.zhoutianling.AabResGuard:aabresguard-plugin:v0.1.10-agp9"
+    classpath "com.github.mobcoding.AabResGuard:aabresguard-plugin:v0.1.13"
   }
 }
 ```
 
-Configured in `build.gradle(application)`
+For a Kotlin DSL project, resolve the plugin in `settings.gradle.kts` and then use the declarative plugin block:
+```kotlin
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+        maven(url = "https://jitpack.io")
+    }
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == "com.bytedance.android.aabResGuard") {
+                useModule("com.github.mobcoding.AabResGuard:aabresguard-plugin:v0.1.13")
+            }
+        }
+    }
+}
+```
+
+Configure the plugin in the application module. The Kotlin DSL version is shown below; the same extension properties are available from Groovy.
+```kotlin
+import com.bytedance.android.plugin.extensions.AabResGuardExtension
+
+plugins {
+    id("com.android.application")
+    id("com.bytedance.android.aabResGuard")
+}
+
+configure<AabResGuardExtension> {
+    obfuscatedBundleFileName = "app-resguard.aab"
+    mergeDuplicatedRes = true
+    enableFilterFiles = true
+    filterList = setOf("*/arm64-v8a/*", "META-INF/*")
+}
+```
+
+Groovy DSL:
 ```gradle
 apply plugin: "com.bytedance.android.aabResGuard"
 aabResGuard {
@@ -69,20 +109,19 @@ aabResGuard {
 }
 ```
 
-The `aabResGuard plugin` intrudes the `bundle` packaging process and can be obfuscated by executing the original packaging commands.
+The plugin runs after the original bundle task. Build the normal release AAB:
 ```cmd
 ./gradlew :app:bundleRelease --stacktrace
 ```
 
-Get the obfuscated `bundle` file path by `gradle` .
-```groovy
-def aabResGuardPlugin = project.tasks.getByName("aabresguard${VARIANT_NAME}")
-Path bundlePath = aabResGuardPlugin.getObfuscatedBundlePath()
-```
+The original AAB remains at `build/outputs/bundle/<variant>/`. The protected AAB is written separately to `build/outputs/aabresguard/<variant>/<obfuscatedBundleFileName>`; update CI and Play upload paths accordingly.
+
+For a production variant, configure its Android signing config before running AabResGuard. The plugin re-signs its separate output and must use the same release key as the original bundle.
 
 ### Build this fork
 - Default local build only includes the publishable `core` and `plugin` modules.
 - If you also want to open the legacy sample app modules, use `-PincludeSamples=true`.
+- The build uses JDK 17 and Gradle 9.1.0. The plugin is implemented with AGP 9 public APIs.
 
 ### [Whitelist](wiki/en/WHITELIST.md)
 The resources that can not be confused. Welcome PR your configs which is not included in [WHITELIST](wiki/en/WHITELIST.md)

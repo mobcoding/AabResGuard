@@ -1,6 +1,11 @@
 **[English](CHANGELOG.md)** | [简体中文](../zh-cn/CHANGELOG.md)
 
 # Change log
+## v0.1.13 (2026/07/17)
+- Publish the AGP 9 fork to JitPack under `com.github.mobcoding.AabResGuard`.
+- Remove the `-agp9` suffix from the release version.
+- Make the Gradle task compatible with Configuration Cache by passing extension and signing values as task properties.
+
 ## 0.1.6（2020/4/21）
 - Compatible wit `AGP-3.5.0`
 - Bugfix: `Fix get AGP version failed issue`

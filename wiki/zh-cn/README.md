@@ -4,13 +4,15 @@
   <p align="center" style="font-size: 0.3em">针对 aab 文件的资源混淆工具</p>
 </h1>
 
-[ ![Download](https://api.bintray.com/packages/yeoh/maven/aabresguard-plugin/images/download.svg?version=0.1.4) ](https://bintray.com/yeoh/maven/aabresguard-plugin/0.1.4/link)
+[![JitPack](https://jitpack.io/v/mobcoding/AabResGuard.svg)](https://jitpack.io/#mobcoding/AabResGuard)
 [![License](https://img.shields.io/badge/license-Apache2.0-brightgreen)](../../LICENSE)
-[![Bundletool](https://img.shields.io/badge/Dependency-Bundletool/0.10.0-blue)](https://github.com/google/bundletool)
+[![Bundletool](https://img.shields.io/badge/Dependency-Bundletool/1.18.3-blue)](https://github.com/google/bundletool)
 
 [English](../../README.md) | **[简体中文](README.md)**
 
 > 本工具由字节跳动抖音 Android 团队提供。
+
+当前 fork 维护于 [mobcoding/AabResGuard](https://github.com/mobcoding/AabResGuard)，基于 AGP 9 公共 API，并通过 JitPack 发布。
 
 ## 特性
 > 针对 aab 文件的资源混淆工具
@@ -31,21 +33,59 @@
 - **Gradle plugin：** 支持 `gradle plugin`，使用原始打包命令执行混淆。
 
 ### Gradle plugin
-在 `build.gradle(root project)` 中进行配置
+当前版本为 `v0.1.13`。Maven 坐标保留 Git tag 的 `v` 前缀，但不再使用 `-agp9` 后缀。
+
+Groovy 根工程 `build.gradle`：
 ```gradle
 buildscript {
   repositories {
-    mavenCentral()
-    jcenter()
     google()
-   }
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+  }
   dependencies {
-    classpath "com.bytedance.android:aabresguard-plugin:0.1.0"
+    classpath "com.github.mobcoding.AabResGuard:aabresguard-plugin:v0.1.13"
   }
 }
 ```
 
-在 `build.gradle(application)` 中配置
+Kotlin DSL 工程在 `settings.gradle.kts` 中解析插件：
+```kotlin
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+        maven(url = "https://jitpack.io")
+    }
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == "com.bytedance.android.aabResGuard") {
+                useModule("com.github.mobcoding.AabResGuard:aabresguard-plugin:v0.1.13")
+            }
+        }
+    }
+}
+```
+
+应用模块 Kotlin DSL 配置：
+```kotlin
+import com.bytedance.android.plugin.extensions.AabResGuardExtension
+
+plugins {
+    id("com.android.application")
+    id("com.bytedance.android.aabResGuard")
+}
+
+configure<AabResGuardExtension> {
+    obfuscatedBundleFileName = "app-resguard.aab"
+    mergeDuplicatedRes = true
+    enableFilterFiles = true
+    filterList = setOf("*/arm64-v8a/*", "META-INF/*")
+}
+```
+
+Groovy 应用模块配置：
 ```gradle
 apply plugin: "com.bytedance.android.aabResGuard"
 aabResGuard {
@@ -67,16 +107,14 @@ aabResGuard {
 }
 ```
 
-`aabResGuard plugin` 侵入了 `bundle` 打包流程，可以直接执行原始打包命令进行混淆。
+插件在原始 bundle 任务完成后执行，仍然使用常规 release 打包命令：
 ```cmd
-./gradlew clean :app:bundleDebug --stacktrace
+./gradlew :app:bundleRelease --stacktrace
 ```
 
-通过 `gradle` 获取混淆后的 `bundle` 文件路径
-```groovy
-def aabResGuardPlugin = project.tasks.getByName("aabresguard${VARIANT_NAME}")
-Path bundlePath = aabResGuardPlugin.getObfuscatedBundlePath()
-```
+原始 AAB 位于 `build/outputs/bundle/<variant>/`，混淆后的 AAB 独立输出到 `build/outputs/aabresguard/<variant>/<obfuscatedBundleFileName>`。CI 和 Play 上传路径需要指向后者。
+
+生产 release 必须在 Android DSL 中配置正式签名。AabResGuard 会重新签名独立输出的 AAB，必须使用与原始 bundle 相同的 release key。
 
 ### [白名单](../en/WHITELIST.md)
 不需要混淆的资源. 如果[白名单](../en/WHITELIST.md)中没有包含你的配置，欢迎提交 PR.

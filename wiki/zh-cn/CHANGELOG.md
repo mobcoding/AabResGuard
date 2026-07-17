@@ -1,6 +1,11 @@
 [English](../en/CHANGELOG.md) | **[简体中文](CHANGELOG.md)**
 
 # 版本日志
+## v0.1.13（2026/07/17）
+- 以 `com.github.mobcoding.AabResGuard` 坐标发布 AGP 9 版本到 JitPack。
+- 版本号移除 `-agp9` 后缀。
+- 将扩展配置和签名信息改为 Gradle Task Property，兼容 Configuration Cache。
+
 ## 0.1.6（2020/4/21）
 - 适配 `AGP-3.5.0`
 - 修复获取 `AGP` 版本号失败的问题
