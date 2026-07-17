@@ -1,42 +1,34 @@
 # AabResGuard
+
 <h1 align="center">
   <img src="wiki/images/logo.png" height="220" width="460"/>
-  <p align="center" style="font-size: 0.3em">The tool of obfuscated aab resources</p>
+  <p align="center" style="font-size: 0.3em">面向 Android App Bundle（AAB）的资源混淆工具</p>
 </h1>
 
 [![JitPack](https://jitpack.io/v/mobcoding/AabResGuard.svg)](https://jitpack.io/#mobcoding/AabResGuard)
 [![License](https://img.shields.io/badge/license-Apache2.0-brightgreen)](LICENSE)
 [![Bundletool](https://img.shields.io/badge/Dependency-Bundletool/1.18.3-blue)](https://github.com/google/bundletool)
 
-**[English](README.md)** | [简体中文](wiki/zh-cn/README.md)
+**简体中文** | [English documentation](wiki/en/COMMAND.md)
 
-> Powered by bytedance douyin android team.
+> 原项目由字节跳动抖音 Android 团队提供。本 fork 维护于 [mobcoding/AabResGuard](https://github.com/mobcoding/AabResGuard)，适配 AGP 9，并通过 JitPack 发布。
 
-This fork is maintained at [mobcoding/AabResGuard](https://github.com/mobcoding/AabResGuard), targets AGP 9, and is published through JitPack.
+## 功能
 
-## Features
-> The tool of obfuscated aab resources.
+- **资源去重：** 合并重复资源文件，减小 AAB 体积。
+- **文件过滤：** 支持过滤 Bundle 中不需要的文件。
+- **白名单：** 白名单中的资源不会被混淆。
+- **增量混淆：** 使用上一版 `resources-mapping.txt` 保持资源混淆结果稳定。
+- **无用字符串过滤：** 可根据无用字符串列表移除资源字符串。
 
-- **Merge duplicated resources:** Consolidate duplicate resource files to reduce package size.
-- **Filter bundle files:** Support for filtering files in the `bundle` package. Currently only supports filtering in the `MATE-INFO/` and `lib/` paths.
-- **White list:** The resources in the whitelist are not to be obfuscated.
-- **Incremental obfuscation:** Input the `mapping` file to support incremental obfuscation.
-- **Remove string:** Input the unused file splits by lines to support remove strings.
-- **???:** Looking ahead, there will be more feature support, welcome to submit PR & issue.
+## 快速接入
 
-## [Data of size savings](wiki/en/DATA.md)
-**AabResGuard** is a resource obfuscation tool powered by the douyin Android team. It has been launched at the end of July 2018 in several overseas products, such as **Tiktok, Vigo**, etc. 
-There is no feedback on related resource issues. 
-For more data details, please go to **[Data of size savings](wiki/en/DATA.md)**.
+当前版本为 `v0.1.13`。坐标保留 Git Tag 的 `v` 前缀，不再使用 `-agp9` 后缀。
 
-## Quick start
-- **Command tool:** Support command line.
-- **Gradle plugin:** Support for `gradle plugin`, using the original packaging command to execute obfuscation.
+### Groovy DSL
 
-### Gradle plugin
-The current release is `v0.1.13`. The Maven coordinate keeps the `v` prefix to match the Git tag; it no longer uses an `-agp9` suffix.
+在根目录 `build.gradle` 中添加：
 
-For a Groovy root `build.gradle`:
 ```gradle
 buildscript {
   repositories {
@@ -50,7 +42,20 @@ buildscript {
 }
 ```
 
-For a Kotlin DSL project, resolve the plugin in `settings.gradle.kts` and then use the declarative plugin block:
+在应用模块中应用插件：
+
+```gradle
+apply plugin: "com.bytedance.android.aabResGuard"
+
+aabResGuard {
+    obfuscatedBundleFileName = "app-resguard.aab"
+}
+```
+
+### Kotlin DSL
+
+JitPack 发布的是插件实现包，而不是 Gradle Plugin Marker 包。因此在 `settings.gradle.kts` 中将插件 ID 映射到实际坐标：
+
 ```kotlin
 pluginManagement {
     repositories {
@@ -62,14 +67,17 @@ pluginManagement {
     resolutionStrategy {
         eachPlugin {
             if (requested.id.id == "com.bytedance.android.aabResGuard") {
-                useModule("com.github.mobcoding.AabResGuard:aabresguard-plugin:v0.1.13")
+                useModule(
+                    "com.github.mobcoding.AabResGuard:aabresguard-plugin:v0.1.13"
+                )
             }
         }
     }
 }
 ```
 
-Configure the plugin in the application module. The Kotlin DSL version is shown below; the same extension properties are available from Groovy.
+在应用模块的 `build.gradle.kts` 中：
+
 ```kotlin
 import com.bytedance.android.plugin.extensions.AabResGuardExtension
 
@@ -82,72 +90,60 @@ configure<AabResGuardExtension> {
     obfuscatedBundleFileName = "app-resguard.aab"
     mergeDuplicatedRes = true
     enableFilterFiles = true
-    filterList = setOf("*/arm64-v8a/*", "META-INF/*")
+    filterList = setOf("META-INF/*", "BUNDLE-METADATA/*")
 }
 ```
 
-Groovy DSL:
-```gradle
-apply plugin: "com.bytedance.android.aabResGuard"
-aabResGuard {
-    mappingFile = file("mapping.txt").toPath() // Mapping file used for incremental obfuscation
-    whiteList = [ // White list rules
+### 常用配置
+
+```kotlin
+configure<AabResGuardExtension> {
+    // 上一版生成的 resources-mapping.txt，用于增量混淆。
+    mappingFile = file("aabresguard/resources-mapping.txt").toPath()
+
+    whiteList = setOf(
         "*.R.raw.*",
-        "*.R.drawable.icon"
-    ]
-    obfuscatedBundleFileName = "duplicated-app.aab" // Obfuscated file name, must end with '.aab'
-    mergeDuplicatedRes = true // Whether to allow the merge of duplicate resources
-    enableFilterFiles = true // Whether to allow filter files
-    filterList = [ // file filter rules
-        "*/arm64-v8a/*",
-        "META-INF/*"
-    ]
-    
-    enableFilterStrings = false // switch of filter strings
-    unusedStringPath = file("unused.txt").toPath() // strings will be filtered in this file
-    languageWhiteList = ["en", "zh"] // keep en,en-xx,zh,zh-xx etc. remove others.
+        "*.R.drawable.icon",
+        "*.R.string.google_app_id"
+    )
+    obfuscatedBundleFileName = "app-resguard.aab"
+    mergeDuplicatedRes = true
+    enableFilterFiles = true
+    filterList = setOf("META-INF/*", "BUNDLE-METADATA/*")
 }
 ```
 
-The plugin runs after the original bundle task. Build the normal release AAB:
-```cmd
-./gradlew :app:bundleRelease --stacktrace
+`mappingFile` 是上一次构建的输入文件，不是本次输出路径。请将新生成的 `resources-mapping.txt` 归档到不会被 `build/` 清理的位置，再在下一次构建中作为输入使用。
+
+## 构建与输出
+
+执行：
+
+```shell
+./gradlew bundleRelease
 ```
 
-The original AAB remains at `build/outputs/bundle/<variant>/`. The protected AAB is written separately to `build/outputs/aabresguard/<variant>/<obfuscatedBundleFileName>`; update CI and Play upload paths accordingly.
+插件会在 Bundle 构建结束后执行 `aabresguardRelease`。默认输出位置为：
 
-For a production variant, configure its Android signing config before running AabResGuard. The plugin re-signs its separate output and must use the same release key as the original bundle.
+```text
+app/build/outputs/aabresguard/release/
+├── app-resguard.aab
+└── resources-mapping.txt
+```
 
-### Build this fork
-- Default local build only includes the publishable `core` and `plugin` modules.
-- If you also want to open the legacy sample app modules, use `-PincludeSamples=true`.
-- The build uses JDK 17 and Gradle 9.1.0. The plugin is implemented with AGP 9 public APIs.
+上传应用商店时使用混淆后的 AAB；同时归档 `resources-mapping.txt`，以支持后续版本的增量混淆。
 
-### [Whitelist](wiki/en/WHITELIST.md)
-The resources that can not be confused. Welcome PR your configs which is not included in [WHITELIST](wiki/en/WHITELIST.md)
+## 文档
 
-### [Command line](wiki/en/COMMAND.md)
-**AabResGuard** provides a `jar` file that can be executed directly from the command line. More details, please go to **[Command Line](wiki/en/COMMAND.md)**.
+- [资源白名单（英文）](wiki/en/WHITELIST.md)
+- [命令行工具](wiki/zh-cn/COMMAND.md)
+- [输出文件说明](wiki/zh-cn/OUTPUT.md)
+- [体积优化数据](wiki/zh-cn/DATA.md)
+- [版本记录](wiki/zh-cn/CHANGELOG.md)
+- [贡献指南](wiki/zh-cn/CONTRIBUTOR.md)
+- [英文命令行文档](wiki/en/COMMAND.md)
 
-### [Output](wiki/en/OUTPUT.md)
-After the packaging is completed, the obfuscated file and the log files will be output. More details, please go to **[Output File](wiki/en/OUTPUT.md)**.
-- **resources-mapping.txt:** Resource obfuscation mapping, which can be used as the next obfuscation input to achieve incremental obfuscate.
-- **aab:** Optimized aab file.
-- **-duplicated.txt:** duplicated file logging.
+## 致谢
 
-## [Change log](wiki/en/CHANGELOG.md)
-Version change log. More details, please go to **[Change Log](wiki/en/CHANGELOG.md)** .
-
-## [Contribute](wiki/en/CONTRIBUTOR.md)
-Read the details to learn how to participate in the improvement **AabResGuard**.
-
-### Contributor
-* [JingYeoh](https://github.com/JingYeoh)
-* [Jun Li]()
-* [Zilai Jiang](https://github.com/Zzzia)
-* [Zhiqian Yang](https://github.com/yangzhiqian)
-* [Xiaoshuang Bai (Designer)](https://www.behance.net/shawnpai)
-
-## Thanks
-* [AndResGuard](https://github.com/shwenzhang/AndResGuard/)
-* [BundleTool](https://github.com/google/bundletool)
+- [AndResGuard](https://github.com/shwenzhang/AndResGuard/)
+- [BundleTool](https://github.com/google/bundletool)
