@@ -1,5 +1,3 @@
-[English](../en/CONTRIBUTOR.md) | **[简体中文](../zh-cn/CONTRIBUTOR.md)**
-
 # 贡献指南
 
 这篇指南会指导你如何为 **AabResGuard** 贡献一份自己的力量，请在你要提 [issue](https://github.com/bytedance/AabResGuard/issues) 或者 [pull request](https://github.com/bytedance/AabResGuard/pulls) 
@@ -8,8 +6,8 @@
 ## 贡献
 我们随时都欢迎任何贡献，无论是简单的错别字修正，BUG 修复还是增加新功能。请踊跃提出问题或发起 PR。我们同样重视文档以及与其它开源项目的整合，欢迎在这方面做出贡献。
 
-## [#行为准则](../en/CODE_OF_CONDUCT.md)
-我们有一份[行为准则](../en/CODE_OF_CONDUCT.md)，希望所有的贡献者都能遵守，请花时间阅读一遍全文以确保你能明白哪些是可以做的，哪些是不可以做的。
+## [行为准则](CODE_OF_CONDUCT.md)
+我们有一份[行为准则](CODE_OF_CONDUCT.md)，希望所有贡献者都能遵守。请花时间阅读全文，了解社区接受和不接受的行为。
 
 ## 研发流程
 我们所有的工作都会放在 GitHub 上。不管是核心团队的成员还是外部贡献者的 pull request 都需要经过同样流程的 review。
@@ -27,7 +25,7 @@
 - 将提交 push 到 fork 的仓库下
 - 创建一个 pull request (PR)
 
-提交 PR 的时候请参考 [PR 模板](../en/PULL_REQUEST_TEMPLATE.md)。在进行较大的变更的时候请确保 PR 有一个对应的 Issue。
+提交 PR 时请参考 [PR 模板](../../.github/PULL_REQUEST_TEMPLATE.md)。进行较大变更时，请确保 PR 有一个对应的 Issue。
 
 
 在合并 PR 的时候，请把多余的提交记录都 squash 成一个。最终的提交信息需要保证简练、规范。

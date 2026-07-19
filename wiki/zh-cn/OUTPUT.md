@@ -1,4 +1,3 @@
-[English](../OUTPUT.md) | **[简体中文](OUTPUT.md)**
 # 输出文件
 
 >混淆后的文件输出目录和 bundle 打包后输出的文件目录一致，均在 `build/outputs/bundle/{flavor}/` 目录下。

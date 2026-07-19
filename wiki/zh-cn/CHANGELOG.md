@@ -1,5 +1,3 @@
-[English](../en/CHANGELOG.md) | **[简体中文](CHANGELOG.md)**
-
 # 版本日志
 ## 未发布
 - 将上游完整的 Gradle 插件配置同步到默认 README，并补充等价 Kotlin DSL 示例。
@@ -33,11 +31,11 @@
 
 ## 0.1.2（2020/1/7）
 - 适配 `AGP-4.0.0-alpha07`
--  Fix issue [#13](https://github.com/bytedance/AabResGuard/issues/13)
+- 修复问题 [#13](https://github.com/bytedance/AabResGuard/issues/13)
 
 ## 0.1.1（2019/11/26）
 - 适配 `AGP-3.4.1`
-- Fix issue [#4](https://github.com/bytedance/AabResGuard/issues/4)
+- 修复问题 [#4](https://github.com/bytedance/AabResGuard/issues/4)
 
 ## 0.1.0（2019/10/16）
 - 添加资源混淆功能

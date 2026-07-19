@@ -9,8 +9,6 @@
 [![License](https://img.shields.io/badge/license-Apache2.0-brightgreen)](LICENSE)
 [![Bundletool](https://img.shields.io/badge/Dependency-Bundletool/1.18.3-blue)](https://github.com/google/bundletool)
 
-**简体中文** | [English documentation](wiki/en/COMMAND.md)
-
 > 原项目由字节跳动抖音 Android 团队提供。本 fork 维护于 [mobcoding/AabResGuard](https://github.com/mobcoding/AabResGuard)，适配 AGP 9，并通过 JitPack 发布。
 
 ## 功能
@@ -142,13 +140,13 @@ app/build/outputs/bundle/release/
 
 ## 文档
 
-- [资源白名单（英文）](wiki/en/WHITELIST.md)
+- [资源白名单](wiki/zh-cn/WHITELIST.md)
 - [命令行工具](wiki/zh-cn/COMMAND.md)
 - [输出文件说明](wiki/zh-cn/OUTPUT.md)
 - [体积优化数据](wiki/zh-cn/DATA.md)
 - [版本记录](wiki/zh-cn/CHANGELOG.md)
 - [贡献指南](wiki/zh-cn/CONTRIBUTOR.md)
-- [英文命令行文档](wiki/en/COMMAND.md)
+- [行为准则](wiki/zh-cn/CODE_OF_CONDUCT.md)
 
 ## 致谢
 

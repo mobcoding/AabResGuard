@@ -8,8 +8,6 @@
 [![License](https://img.shields.io/badge/license-Apache2.0-brightgreen)](../../LICENSE)
 [![Bundletool](https://img.shields.io/badge/Dependency-Bundletool/1.18.3-blue)](https://github.com/google/bundletool)
 
-[English](../../README.md) | **[简体中文](README.md)**
-
 > 本工具由字节跳动抖音 Android 团队提供。
 
 当前 fork 维护于 [mobcoding/AabResGuard](https://github.com/mobcoding/AabResGuard)，基于 AGP 9 公共 API，并通过 JitPack 发布。
@@ -127,8 +125,8 @@ aabResGuard {
 
 生产 release 必须在 Android DSL 中配置正式签名。AabResGuard 会重新签名独立输出的 AAB，必须使用与原始 bundle 相同的 release key。
 
-### [白名单](../en/WHITELIST.md)
-不需要混淆的资源. 如果[白名单](../en/WHITELIST.md)中没有包含你的配置，欢迎提交 PR.
+### [白名单](WHITELIST.md)
+不需要混淆的资源可以加入[白名单](WHITELIST.md)。如果现有示例没有包含你的配置，欢迎提交 PR。
 
 ### [命令行支持](COMMAND.md)
 **AabResGuard** 提供了 `jar` 包，可以使用命令行直接执行，具体的使用请移步 **[命令行支持](COMMAND.md)** 。

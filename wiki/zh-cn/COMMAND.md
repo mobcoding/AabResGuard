@@ -1,5 +1,3 @@
-[English](../en/COMMAND.md) | **[简体中文](COMMAND.md)**
-
 # 命令行支持
 
 > **AabResGuard** 提供了 jar 包，可以直接通过命令行来运行资源混淆。
@@ -74,9 +72,9 @@ aabresguard filter-string --bundle=app.aab --output=filtered.aab --config=config
 <?xml version="1.0" encoding="UTF-8"?>
 <resproguard>
     <filter-str isactive="false">
-        <!--remove strings in file-->
+        <!--删除清单文件中列出的字符串-->
         <path value="unused.txt" />
-        <!--keep strings by language such as en, en-xx, and remove others-->
+        <!--保留 en、en-xx 等指定语言，删除其他语言-->
         <language value="en" />
         <language value="zh" />
     </filter-str>
