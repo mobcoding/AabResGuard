@@ -48,7 +48,21 @@ buildscript {
 apply plugin: "com.bytedance.android.aabResGuard"
 
 aabResGuard {
-    obfuscatedBundleFileName = "app-resguard.aab"
+    mappingFile = file("mapping.txt").toPath() // 用于增量混淆的 mapping 文件
+    whiteList = [ // 白名单规则
+        "*.R.raw.*",
+        "*.R.drawable.icon"
+    ]
+    obfuscatedBundleFileName = "duplicated-app.aab" // 混淆后的文件名称，必须以 `.aab` 结尾
+    mergeDuplicatedRes = true // 是否允许去除重复资源
+    enableFilterFiles = true // 是否允许过滤文件
+    filterList = [ // 文件过滤规则
+        "*/arm64-v8a/*",
+        "META-INF/*"
+    ]
+    enableFilterStrings = false // 过滤文案
+    unusedStringPath = file("unused.txt").toPath() // 过滤文案列表路径，默认在 mapping 同目录查找
+    languageWhiteList = ["en", "zh"] // 保留 en、en-xx、zh、zh-xx 等语言，其余均删除
 }
 ```
 
@@ -87,29 +101,21 @@ plugins {
 }
 
 configure<AabResGuardExtension> {
-    obfuscatedBundleFileName = "app-resguard.aab"
-    mergeDuplicatedRes = true
-    enableFilterFiles = true
-    filterList = setOf("META-INF/*", "BUNDLE-METADATA/*")
-}
-```
-
-### 常用配置
-
-```kotlin
-configure<AabResGuardExtension> {
-    // 用于增量混淆的上一版 mapping 文件。
     mappingFile = file("mapping.txt").toPath()
-
     whiteList = setOf(
         "*.R.raw.*",
-        "*.R.drawable.icon",
-        "*.R.string.google_app_id"
+        "*.R.drawable.icon"
     )
-    obfuscatedBundleFileName = "app-resguard.aab"
+    obfuscatedBundleFileName = "duplicated-app.aab"
     mergeDuplicatedRes = true
     enableFilterFiles = true
-    filterList = setOf("META-INF/*", "BUNDLE-METADATA/*")
+    filterList = setOf(
+        "*/arm64-v8a/*",
+        "META-INF/*"
+    )
+    enableFilterStrings = false
+    unusedStringPath = file("unused.txt").toPath().toString()
+    languageWhiteList = setOf("en", "zh")
 }
 ```
 
@@ -128,7 +134,7 @@ configure<AabResGuardExtension> {
 ```text
 app/build/outputs/bundle/release/
 ├── app-release.aab
-├── app-resguard.aab
+├── duplicated-app.aab
 └── resources-mapping.txt
 ```
 

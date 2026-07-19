@@ -78,10 +78,21 @@ plugins {
 }
 
 configure<AabResGuardExtension> {
-    obfuscatedBundleFileName = "app-resguard.aab"
+    mappingFile = file("mapping.txt").toPath()
+    whiteList = setOf(
+        "*.R.raw.*",
+        "*.R.drawable.icon"
+    )
+    obfuscatedBundleFileName = "duplicated-app.aab"
     mergeDuplicatedRes = true
     enableFilterFiles = true
-    filterList = setOf("*/arm64-v8a/*", "META-INF/*")
+    filterList = setOf(
+        "*/arm64-v8a/*",
+        "META-INF/*"
+    )
+    enableFilterStrings = false
+    unusedStringPath = file("unused.txt").toPath().toString()
+    languageWhiteList = setOf("en", "zh")
 }
 ```
 

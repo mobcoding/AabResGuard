@@ -1,6 +1,11 @@
 **[English](CHANGELOG.md)** | [简体中文](../zh-cn/CHANGELOG.md)
 
 # Change log
+## Unreleased
+- Sync the complete upstream Gradle plugin configuration into the default README and add the equivalent Kotlin DSL example.
+- Fix `UnsupportedOperationException` when file-filter rules come from an immutable Gradle collection.
+- Remove the unused ProtoTruth test dependency that upgraded Protobuf to an incompatible version.
+
 ## v0.1.15 (2026/07/18)
 - Avoid querying the AGP Bundle artifact provider before `sign<Variant>Bundle` completes.
 - Keep official Bundle-directory output semantics through the deterministic variant output directory.

@@ -1,6 +1,11 @@
 [English](../en/CHANGELOG.md) | **[简体中文](CHANGELOG.md)**
 
 # 版本日志
+## 未发布
+- 将上游完整的 Gradle 插件配置同步到默认 README，并补充等价 Kotlin DSL 示例。
+- 修复文件过滤规则来自 Gradle 不可变集合时的 `UnsupportedOperationException`。
+- 移除未使用且会将 Protobuf 升级到不兼容版本的 ProtoTruth 测试依赖。
+
 ## v0.1.15（2026/07/18）
 - 避免在 `sign<Variant>Bundle` 完成前查询 AGP Bundle 产物 Provider。
 - 使用确定性的 variant Bundle 输出目录，继续保持官网同级输出语义。
