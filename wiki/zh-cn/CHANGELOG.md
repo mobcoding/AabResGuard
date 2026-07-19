@@ -1,5 +1,3 @@
-[English](../en/CHANGELOG.md) | **[简体中文](CHANGELOG.md)**
-
 # 版本日志
 ## v0.1.15（2026/07/18）
 - 避免在 `sign<Variant>Bundle` 完成前查询 AGP Bundle 产物 Provider。

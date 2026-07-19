@@ -1,5 +1,3 @@
-[English](../en/COMMAND.md) | **[简体中文](COMMAND.md)**
-
 # 命令行支持
 
 > **AabResGuard** 提供了 jar 包，可以直接通过命令行来运行资源混淆。

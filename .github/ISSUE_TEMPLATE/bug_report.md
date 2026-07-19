@@ -1,25 +1,33 @@
 ---
-name: Bug report
-about: Create a report to help us improve
-title: "[Gradle issue] "
+name: 缺陷报告
+about: 提交可复现的问题以帮助我们改进
+title: "[Gradle 问题] "
 labels: bug
 assignees: JingYeoh
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+**问题描述**
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+请清晰、简洁地说明发生了什么问题。
 
-**Info (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - AabResGuard  version [e.g. 0.1.1]
- - Android studio version: [e.g. Android Studio 4.0 Canary 7] 
- - AGP version: [e.g. com.android.tools.build:bundletool:3.2.1]
- - Gradle version: [e.g. gradle-5.1.1]
+**预期行为**
 
-**Additional context**
-Add any other context about the problem here.
+请说明你期望发生什么。
+
+**环境信息**
+
+- 设备与 Android 版本：
+- AabResGuard 版本：
+- Android Studio 版本：
+- AGP 版本：
+- Gradle 版本：
+- JDK 版本：
+
+**复现步骤或最小示例**
+
+请提供构建命令、必要配置及可复现步骤。日志中的敏感信息请先脱敏。
+
+**补充信息**
+
+请补充其他有助于定位问题的上下文。

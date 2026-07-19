@@ -1,7 +1,6 @@
-[English](../OUTPUT.md) | **[简体中文](OUTPUT.md)**
 # 输出文件
 
->混淆后的文件输出目录和 bundle 打包后输出的文件目录一致，均在 `build/outputs/bundle/{flavor}/` 目录下。
+混淆后的文件输出目录与 Bundle 打包产物一致，均位于 `build/outputs/bundle/<variant>/` 目录下。原始 AAB 会被保留，混淆后的 AAB、`resources-mapping.txt` 和去重日志位于同级目录。
 
 混淆后的输出文件如下图所示：
 

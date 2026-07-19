@@ -1,40 +1,24 @@
-[English](../en/CONTRIBUTOR.md) | **[简体中文](../zh-cn/CONTRIBUTOR.md)**
-
 # 贡献指南
 
-这篇指南会指导你如何为 **AabResGuard** 贡献一份自己的力量，请在你要提 [issue](https://github.com/bytedance/AabResGuard/issues) 或者 [pull request](https://github.com/bytedance/AabResGuard/pulls) 
-之前花几分钟来阅读一遍这篇指南。
+感谢你为 [mobcoding/AabResGuard](https://github.com/mobcoding/AabResGuard) 提交问题、文档修正、测试或代码改进。
 
-## 贡献
-我们随时都欢迎任何贡献，无论是简单的错别字修正，BUG 修复还是增加新功能。请踊跃提出问题或发起 PR。我们同样重视文档以及与其它开源项目的整合，欢迎在这方面做出贡献。
+## 提交问题
 
-## [#行为准则](../en/CODE_OF_CONDUCT.md)
-我们有一份[行为准则](../en/CODE_OF_CONDUCT.md)，希望所有的贡献者都能遵守，请花时间阅读一遍全文以确保你能明白哪些是可以做的，哪些是不可以做的。
+提交 Issue 前，请先搜索已有问题。为便于复现，请尽量提供：
 
-## 研发流程
-我们所有的工作都会放在 GitHub 上。不管是核心团队的成员还是外部贡献者的 pull request 都需要经过同样流程的 review。
+- AabResGuard、AGP、Gradle、JDK 和 Android Studio 版本。
+- 构建命令、完整错误日志与脱敏后的相关配置。
+- 可稳定复现问题的最小工程或步骤。
+- 预期行为与实际行为。
 
-我们使用 `develop` 分支作为我们的开发分支，这代码它是不稳定的分支。每个版本都会创建一个 `release` 分支（如 `release/0.1`） 作为稳定的发布分支。
-每发布一个新版本都会将其合并到对应的分支并打上对应的 `tag`。
+## 提交 Pull Request
 
-下面是开源贡献者常用的工作流（workflow）：
+1. Fork 本仓库并从最新目标分支创建主题分支。
+2. 保持修改范围集中，为行为变更补充测试或可复现样例。
+3. 运行受影响模块的测试或构建任务，并在 PR 中说明验证结果。
+4. 使用清晰、简洁的提交信息；提交前整理与本次修改无关的提交。
+5. 在 PR 描述中说明修改内容、原因、验证方式和兼容性影响。
 
-- 将仓库 fork 到自己的 GitHub 下
-- 将 fork 后的仓库 clone 到本地
-- 创建新的分支，在新的分支上进行开发操作（请确保对应的变更都有测试用例或 demo 进行验证）
-- 保持分支与远程 master 分支一致（通过 fetch 和 rebase 操作）
-- 在本地提交变更（注意 commit log 保持简练、规范），注意提交的 email 需要和 GitHub 的 email 保持一致
-- 将提交 push 到 fork 的仓库下
-- 创建一个 pull request (PR)
+## 协作约定
 
-提交 PR 的时候请参考 [PR 模板](../en/PULL_REQUEST_TEMPLATE.md)。在进行较大的变更的时候请确保 PR 有一个对应的 Issue。
-
-
-在合并 PR 的时候，请把多余的提交记录都 squash 成一个。最终的提交信息需要保证简练、规范。
-
-## 提交 bug
-### 查找已知的 Issues
-我们使用 GitHub Issues 来管理项目 bug。 我们将密切关注已知 bug，并尽快修复。 在提交新问题之前，请尝试确保您的问题尚不存在。
-
-### 提交新的 Issues
-请按照 Issues Template 的指示来提交新的 Issues。
+请保持讨论专业、尊重且聚焦问题本身。涉及破坏性变更、构建行为调整或发布流程修改时，请先通过 Issue 或 PR 描述说明迁移方案。
