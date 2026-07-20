@@ -153,7 +153,7 @@ public class BundleFileFilter {
                 .map(ImmutableMap::entrySet)
                 .flatMap(Collection::stream)
                 .filter(entry -> {
-                    ZipPath entryZipPath = entry.getKey();
+                    ZipPath entryZipPath = normalizeMetadataPath(entry.getKey());
                     if (getMatchedFilterRule(entryZipPath) != null) {
                         System.out.println(String.format("[filter] metadata file is filtered, path: %s", entryZipPath));
                         filterTotalCount += 1;
@@ -164,6 +164,15 @@ public class BundleFileFilter {
                 })
                 .forEach(entry -> builder.addFile(entry.getKey(), entry.getValue()));
         return builder.build();
+    }
+
+    private ZipPath normalizeMetadataPath(ZipPath metadataPath) {
+        String path = metadataPath.toString();
+        String metadataDirectory = METADATA_DIRECTORY.toString();
+        if (path.startsWith(metadataDirectory + "/")) {
+            return metadataPath;
+        }
+        return ZipPath.create(metadataDirectory + "/" + path);
     }
 
     private void checkFilteredEntry(ModuleEntry entry, String filterRule) {
