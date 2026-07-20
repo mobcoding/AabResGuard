@@ -55,7 +55,6 @@ aabResGuard {
     mergeDuplicatedRes = true // 是否允许去除重复资源
     enableFilterFiles = true // 是否允许过滤文件
     filterList = [ // 文件过滤规则
-        "*/arm64-v8a/*",
         "META-INF/*"
     ]
     enableFilterStrings = false // 过滤文案
@@ -108,7 +107,6 @@ configure<AabResGuardExtension> {
     mergeDuplicatedRes = true
     enableFilterFiles = true
     filterList = setOf(
-        "*/arm64-v8a/*",
         "META-INF/*"
     )
     enableFilterStrings = false

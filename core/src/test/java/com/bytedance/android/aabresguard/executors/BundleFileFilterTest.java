@@ -25,7 +25,7 @@ public class BundleFileFilterTest extends BaseTest {
         AppBundleAnalyzer analyzer = new AppBundleAnalyzer(bundlePath);
         AppBundle appBundle = analyzer.analyze();
         ImmutableSet<String> filterRules = ImmutableSet.of(
-                "*/arm64-v8a/*"
+                "META-INF/*.RSA"
         );
         BundleFileFilter fileFilter = new BundleFileFilter(
                 loadResourceFile("demo/demo.aab").toPath(),

@@ -27,12 +27,10 @@ aabresguard filter-file --bundle=app.aab --output=filtered.aab --config=config.x
 <?xml version="1.0" encoding="UTF-8"?>
 <resproguard>
     <filter isactive="false">
-        <rule value="*/arm64-v8a/*" />
         <rule value="META-INF/*.RSA" />
     </filter>
 </resproguard>
 ```
-**适用场景：** 由于业务的需要，部分渠道需要打全量包，但是全量包会包括所有的 `so`，使用该根据可以过滤某一个纬度的 `abi`，并且不会影响 `bundletool` 的解析过程。
 
 ## 资源混淆
 对输入的 `aab` 文件进行资源混淆，并输出混淆后的 `aab` 文件，支持 `资源去重` 和 `文件过滤`。
@@ -52,7 +50,6 @@ aabresguard obfuscate-bundle --bundle=app.aab --output=obfuscated.aab --config=c
         <path value="com.ss.android.ugc.aweme.R.raw.*" />
     </issue>
     <filter isactive="false">
-        <rule value="*/arm64-v8a/*" />
         <rule value="META-INF/*.RSA" />
     </filter>
 </resproguard>

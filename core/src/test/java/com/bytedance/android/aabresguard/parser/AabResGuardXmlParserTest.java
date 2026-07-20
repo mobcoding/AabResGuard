@@ -19,7 +19,7 @@ public class AabResGuardXmlParserTest extends BaseTest {
         assert config != null;
         assert config.isUseWhiteList();
         assert config.getFileFilter() != null;
-        assert config.getFileFilter().getRules().size() == 2;
+        assert config.getFileFilter().getRules().size() == 1;
         assert config.getWhiteList().size() == 1;
     }
 }

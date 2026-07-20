@@ -18,6 +18,6 @@ public class FileFilterXmlParserTest extends BaseTest {
         FileFilterConfig fileFilter = parser.parse();
         assert fileFilter != null;
         assert fileFilter.isActive();
-        assert fileFilter.getRules().size() == 2;
+        assert fileFilter.getRules().size() == 1;
     }
 }

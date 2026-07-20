@@ -13,7 +13,6 @@
         <language value="zh" />
     </filter-str>
     <filter isactive="false">
-        <rule value="*/arm64-v8a/*" />
         <rule value="META-INF/*.RSA" />
     </filter>
 </resproguard>
