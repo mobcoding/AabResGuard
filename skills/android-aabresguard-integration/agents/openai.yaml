@@ -1,0 +1,4 @@
+interface:
+  display_name: "Android AabResGuard 集成"
+  short_description: "保留既有工程配置并正确接入验证 AAB 资源混淆产物"
+  default_prompt: "Use $android-aabresguard-integration to integrate AabResGuard into this Android project."
