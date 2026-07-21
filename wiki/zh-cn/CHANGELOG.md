@@ -1,8 +1,12 @@
 # 版本日志
-## 未发布
+## v0.1.17（2026/07/20）
+- 修复 Bundletool 返回相对路径的 `BUNDLE-METADATA` 条目无法匹配文件过滤规则的问题；`BUNDLE-METADATA/*` 现在可按预期过滤。
+
+## v0.1.16（2026/07/20）
 - 将上游完整的 Gradle 插件配置同步到默认 README，并补充等价 Kotlin DSL 示例。
 - 修复文件过滤规则来自 Gradle 不可变集合时的 `UnsupportedOperationException`。
 - 移除未使用且会将 Protobuf 升级到不兼容版本的 ProtoTruth 测试依赖。
+- 移除示例中会删除 ARM64 原生库的默认过滤规则，避免误用后导致 ARM64 设备不兼容。
 
 ## v0.1.15（2026/07/18）
 - 避免在 `sign<Variant>Bundle` 完成前查询 AGP Bundle 产物 Provider。

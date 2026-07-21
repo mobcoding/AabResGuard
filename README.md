@@ -21,7 +21,7 @@
 
 ## 快速接入
 
-当前版本为 `v0.1.15`。坐标保留 Git Tag 的 `v` 前缀，不再使用 `-agp9` 后缀。
+当前版本为 `v0.1.17`。坐标保留 Git Tag 的 `v` 前缀，不再使用 `-agp9` 后缀。
 
 ### Groovy DSL
 
@@ -35,7 +35,7 @@ buildscript {
     maven { url 'https://jitpack.io' }
   }
   dependencies {
-    classpath "com.github.mobcoding.AabResGuard:aabresguard-plugin:v0.1.15"
+    classpath "com.github.mobcoding.AabResGuard:aabresguard-plugin:v0.1.17"
   }
 }
 ```
@@ -79,7 +79,7 @@ pluginManagement {
         eachPlugin {
             if (requested.id.id == "com.bytedance.android.aabResGuard") {
                 useModule(
-                    "com.github.mobcoding.AabResGuard:aabresguard-plugin:v0.1.15"
+                    "com.github.mobcoding.AabResGuard:aabresguard-plugin:v0.1.17"
                 )
             }
         }
