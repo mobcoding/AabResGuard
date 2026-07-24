@@ -132,7 +132,7 @@ configure<AabResGuardExtension> {
 ```text
 app/build/outputs/bundle/release/
 ├── app-release.aab
-├── duplicated-app.aab
+├── app_build.aab
 └── resources-mapping.txt
 ```
 
