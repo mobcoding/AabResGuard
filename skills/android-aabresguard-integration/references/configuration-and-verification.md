@@ -56,6 +56,8 @@ configure<AabResGuardExtension> {
 
 `mappingFile` is a previous release input. Store the generated `resources-mapping.txt`, copy it to the next release's `mapping.txt`, and keep that lifecycle explicit in release documentation.
 
+Keep `obfuscatedBundleFileName = "app_build.aab"`. Do not rename the obfuscated AAB or add another output-name convention.
+
 ## Output Expectations
 
 For a `release` variant, invoke:

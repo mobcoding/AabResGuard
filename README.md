@@ -51,7 +51,7 @@ aabResGuard {
         "*.R.raw.*",
         "*.R.drawable.icon"
     ]
-    obfuscatedBundleFileName = "duplicated-app.aab" // 混淆后的文件名称，必须以 `.aab` 结尾
+    obfuscatedBundleFileName = "app_build.aab" // 保持默认名称，必须以 `.aab` 结尾
     mergeDuplicatedRes = true // 是否允许去除重复资源
     enableFilterFiles = true // 是否允许过滤文件
     filterList = [ // 文件过滤规则
@@ -103,7 +103,7 @@ configure<AabResGuardExtension> {
         "*.R.raw.*",
         "*.R.drawable.icon"
     )
-    obfuscatedBundleFileName = "duplicated-app.aab"
+    obfuscatedBundleFileName = "app_build.aab"
     mergeDuplicatedRes = true
     enableFilterFiles = true
     filterList = setOf(
@@ -116,6 +116,8 @@ configure<AabResGuardExtension> {
 ```
 
 `mappingFile` 是上一次构建的输入文件，不是本次输出路径。请将新生成的 `resources-mapping.txt` 归档后复制为模块目录下的 `mapping.txt`，再在下一次构建中作为输入使用。
+
+`obfuscatedBundleFileName` 保持默认的 `app_build.aab`，不要修改或使用其他输出名称。
 
 ## 构建与输出
 
