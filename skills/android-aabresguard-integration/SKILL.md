@@ -22,7 +22,7 @@ Read [references/configuration-and-verification.md](references/configuration-and
    - Do not copy another project's whitelist, language list, signing configuration, or output naming convention. Always apply the required file-filter configuration below.
 
 3. Configure the remote plugin.
-   - Use `v0.1.17` and map `com.bytedance.android.aabResGuard` through `pluginManagement.resolutionStrategy` to the JitPack module.
+   - Use `v0.1.18` and map `com.bytedance.android.aabResGuard` through `pluginManagement.resolutionStrategy` to the JitPack module.
    - Apply the plugin only to the application module that creates the target AAB.
    - Replace an obsolete local `plugin-*.jar` only after the remote plugin resolves and the existing extension configuration is retained.
 
@@ -30,7 +30,7 @@ Read [references/configuration-and-verification.md](references/configuration-and
    - Treat module `mapping.txt` as input from a previous release. Treat generated `resources-mapping.txt` as output to archive for the next release.
    - Never enable an ARM64 filter by default; it can remove device support.
    - Always set `enableFilterFiles = true`.
-   - Always set `filterList` to include both `"META-INF/*"` and `"BUNDLE-METADATA/*"`. Version `v0.1.17` normalizes Bundletool relative metadata paths before matching the metadata rule.
+   - Always set `filterList` to include both `"META-INF/*"` and `"BUNDLE-METADATA/*"`. Version `v0.1.17` and later normalize Bundletool relative metadata paths before matching the metadata rule.
    - Filtering `BUNDLE-METADATA/*` removes the embedded R8/ProGuard map. Preserve a separate mapping file when crash-stack deobfuscation is required.
 
 5. Build and verify.
@@ -42,7 +42,7 @@ Read [references/configuration-and-verification.md](references/configuration-and
 ## Guardrails
 
 - Do not query AGP's final Bundle Provider before `sign<Variant>Bundle` completes. Use the plugin's task/provider flow rather than eager task-time reads.
-- Do not add a ZIP rewrite, re-signing task, or `BUNDLE-METADATA` workaround when `v0.1.17` is in use and the plugin configuration is correct.
+- Do not add a ZIP rewrite, re-signing task, or `BUNDLE-METADATA` workaround when `v0.1.18` is in use and the plugin configuration is correct.
 - Keep `obfuscatedBundleFileName = "app_build.aab"`; it is the fixed default output name for this integration.
 - Do not set `enableFilterFiles = false` or omit either required `filterList` rule.
 - Preserve unrelated StringFog, Kotlin, KSP/Room, resource, signing, and deployment configuration.

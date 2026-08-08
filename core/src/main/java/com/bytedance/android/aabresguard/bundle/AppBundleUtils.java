@@ -5,7 +5,6 @@ import com.android.tools.build.bundletool.model.ModuleEntry;
 import com.android.tools.build.bundletool.model.ResourceTableEntry;
 import com.android.tools.build.bundletool.model.ZipPath;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,10 +48,9 @@ public class AppBundleUtils {
     public static byte[] readByte(ZipFile bundleZipFile, ModuleEntry entry, BundleModule bundleModule) throws IOException {
         String path = String.format("%s/%s", bundleModule.getName().getName(), entry.getPath().toString());
         ZipEntry bundleConfigEntry = bundleZipFile.getEntry(path);
-        InputStream is = bundleZipFile.getInputStream(bundleConfigEntry);
-        byte[] bytes = IOUtils.toByteArray(is);
-        is.close();
-        return bytes;
+        try (InputStream is = bundleZipFile.getInputStream(bundleConfigEntry)) {
+            return is.readAllBytes();
+        }
     }
 
     public static String bytesToHexString(byte[] src) {

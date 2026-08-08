@@ -1,4 +1,8 @@
 # 版本日志
+## v0.1.18（2026/08/08）
+- 移除 core shadow JAR 内嵌且未隔离的 Commons IO 2.6，避免 AGP 安装 Android SDK Build-Tools 时发生 `NoSuchMethodError`。
+- 使用 Java 17 原生流读取替代唯一的 Commons IO 调用，并增加发布 JAR 包路径校验，防止同类依赖污染回归。
+
 ## v0.1.17（2026/07/20）
 - 修复 Bundletool 返回相对路径的 `BUNDLE-METADATA` 条目无法匹配文件过滤规则的问题；`BUNDLE-METADATA/*` 现在可按预期过滤。
 
