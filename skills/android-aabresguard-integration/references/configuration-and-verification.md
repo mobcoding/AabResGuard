@@ -47,7 +47,10 @@ configure<AabResGuardExtension> {
     obfuscatedBundleFileName = "app_build.aab"
     mergeDuplicatedRes = true
     enableFilterFiles = true
-    filterList = setOf("META-INF/*")
+    filterList = setOf(
+        "META-INF/*",
+        "BUNDLE-METADATA/*"
+    )
     enableFilterStrings = false
     unusedStringPath = file("unused.txt").toPath().toString()
     languageWhiteList = setOf("en", "zh")
@@ -55,6 +58,8 @@ configure<AabResGuardExtension> {
 ```
 
 `mappingFile` is a previous release input. Store the generated `resources-mapping.txt`, copy it to the next release's `mapping.txt`, and keep that lifecycle explicit in release documentation.
+
+File filtering is required: always set `enableFilterFiles = true` and retain both rules above. `BUNDLE-METADATA/*` removes the embedded R8/ProGuard mapping file, so archive or upload a separate mapping file when deobfuscated crash stacks are needed.
 
 Keep `obfuscatedBundleFileName = "app_build.aab"`. Do not rename the obfuscated AAB or add another output-name convention.
 
@@ -80,7 +85,7 @@ Use the configured obfuscated AAB for distribution and archive `resources-mappin
 
 ```powershell
 Get-ChildItem app\build\outputs\bundle\release -Include *.aab -Recurse
-jar tf <obfuscated-aab> | Select-String '^BUNDLE-METADATA/'
+jar tf app/build/outputs/bundle/release/app_build.aab | Select-String '^(META-INF|BUNDLE-METADATA)/'
 ```
 
-Only assert that metadata is absent when the project's configured `filterList` includes `BUNDLE-METADATA/*`. Otherwise its presence is expected.
+The command must produce no output. Do not inspect the original AGP `app-release.aab`; AabResGuard keeps it unchanged.

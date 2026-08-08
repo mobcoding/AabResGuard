@@ -19,7 +19,7 @@ Read [references/configuration-and-verification.md](references/configuration-and
    - Retain existing extension values and custom output/archiving tasks unless they are broken or the user requests a change.
    - Keep `obfuscatedBundleFileName` at its default value, `app_build.aab`. Do not rename the obfuscated AAB or introduce an alternative output name.
    - Use the minimal template only when no AabResGuard configuration exists.
-   - Do not copy another project's whitelist, language list, filter rules, signing configuration, or output naming convention.
+   - Do not copy another project's whitelist, language list, signing configuration, or output naming convention. Always apply the required file-filter configuration below.
 
 3. Configure the remote plugin.
    - Use `v0.1.17` and map `com.bytedance.android.aabResGuard` through `pluginManagement.resolutionStrategy` to the JitPack module.
@@ -29,11 +29,14 @@ Read [references/configuration-and-verification.md](references/configuration-and
 4. Handle mapping and filters correctly.
    - Treat module `mapping.txt` as input from a previous release. Treat generated `resources-mapping.txt` as output to archive for the next release.
    - Never enable an ARM64 filter by default; it can remove device support.
-   - Use `BUNDLE-METADATA/*` only when the project explicitly wants it filtered. Version `v0.1.17` normalizes Bundletool relative metadata paths before matching this rule.
+   - Always set `enableFilterFiles = true`.
+   - Always set `filterList` to include both `"META-INF/*"` and `"BUNDLE-METADATA/*"`. Version `v0.1.17` normalizes Bundletool relative metadata paths before matching the metadata rule.
+   - Filtering `BUNDLE-METADATA/*` removes the embedded R8/ProGuard map. Preserve a separate mapping file when crash-stack deobfuscation is required.
 
 5. Build and verify.
    - Run the requested variant's `aabresguard<Variant>` task or its existing wrapper task.
-   - Verify the obfuscated AAB name and location, `resources-mapping.txt`, existing archive/copy tasks, and any enabled filter results.
+   - Verify `app_build.aab`, not the untouched AGP `app-release.aab`: neither `META-INF/` nor `BUNDLE-METADATA/` entries may remain.
+   - Verify the obfuscated AAB name and location, `resources-mapping.txt`, and existing archive/copy tasks.
    - Keep the original AGP bundle unless the project's existing behavior explicitly replaces it.
 
 ## Guardrails
@@ -41,5 +44,6 @@ Read [references/configuration-and-verification.md](references/configuration-and
 - Do not query AGP's final Bundle Provider before `sign<Variant>Bundle` completes. Use the plugin's task/provider flow rather than eager task-time reads.
 - Do not add a ZIP rewrite, re-signing task, or `BUNDLE-METADATA` workaround when `v0.1.17` is in use and the plugin configuration is correct.
 - Keep `obfuscatedBundleFileName = "app_build.aab"`; it is the fixed default output name for this integration.
+- Do not set `enableFilterFiles = false` or omit either required `filterList` rule.
 - Preserve unrelated StringFog, Kotlin, KSP/Room, resource, signing, and deployment configuration.
 - Treat AGP compatibility as a build-time check. If the project differs materially from the documented AGP 9 target, configure first and stop on API incompatibility rather than guessing a workaround.

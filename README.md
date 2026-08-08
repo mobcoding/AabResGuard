@@ -55,13 +55,16 @@ aabResGuard {
     mergeDuplicatedRes = true // 是否允许去除重复资源
     enableFilterFiles = true // 是否允许过滤文件
     filterList = [ // 文件过滤规则
-        "META-INF/*"
+        "META-INF/*",
+        "BUNDLE-METADATA/*"
     ]
     enableFilterStrings = false // 过滤文案
     unusedStringPath = file("unused.txt").toPath() // 过滤文案列表路径，默认在 mapping 同目录查找
     languageWhiteList = ["en", "zh"] // 保留 en、en-xx、zh、zh-xx 等语言，其余均删除
 }
 ```
+
+文件过滤为必需配置：始终保持 `enableFilterFiles = true`，并同时保留 `"META-INF/*"` 和 `"BUNDLE-METADATA/*"` 两条规则。`BUNDLE-METADATA/*` 会移除 AAB 内嵌的 R8/ProGuard mapping；需要反混淆崩溃栈时，请单独归档或上传 mapping 文件。请验证 `app_build.aab`，由 AGP 生成的原始 `app-release.aab` 不会被插件修改。
 
 ### Kotlin DSL
 
@@ -107,7 +110,8 @@ configure<AabResGuardExtension> {
     mergeDuplicatedRes = true
     enableFilterFiles = true
     filterList = setOf(
-        "META-INF/*"
+        "META-INF/*",
+        "BUNDLE-METADATA/*"
     )
     enableFilterStrings = false
     unusedStringPath = file("unused.txt").toPath().toString()
