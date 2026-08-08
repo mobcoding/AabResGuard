@@ -28,7 +28,6 @@ dependencies {
     compileOnly gradleApi()
 
     implementation "com.android.support:support-annotations:24.2.0"
-    shadow 'commons-io:commons-io:2.6'
     shadow 'commons-codec:commons-codec:1.5'
     shadow "com.google.guava:guava:27.0.1-jre"
 
@@ -82,4 +81,29 @@ shadowJar {
 
     relocate 'com.android', 'shadow.bytedance.com.android'
     relocate 'com.google', 'shadow.bytedance.com.google'
+}
+
+def verifyShadowJarIsolation = tasks.register("verifyShadowJarIsolation") {
+    group = "verification"
+    description = "Verifies that the published core JAR does not leak Commons IO onto plugin classpaths."
+    dependsOn tasks.named("shadowJar")
+
+    def shadowArchive = tasks.named("shadowJar").flatMap { it.archiveFile }
+    inputs.file(shadowArchive)
+
+    doLast {
+        def leakedEntries = []
+        new java.util.zip.ZipFile(shadowArchive.get().asFile).withCloseable { zipFile ->
+            leakedEntries = zipFile.entries()
+                    .findAll { !it.directory && it.name.startsWith("org/apache/commons/io/") }
+                    .collect { it.name }
+        }
+        if (!leakedEntries.isEmpty()) {
+            throw new GradleException("Shadow JAR leaks Commons IO classes: ${leakedEntries.join(', ')}")
+        }
+    }
+}
+
+tasks.named("check").configure {
+    dependsOn verifyShadowJarIsolation
 }
