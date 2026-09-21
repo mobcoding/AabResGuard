@@ -77,7 +77,7 @@ Use the configured obfuscated AAB for distribution and archive `resources-mappin
 
 ## Known Compatibility Issues
 
-- `v0.1.15` queried a mapped Bundle Provider too early in some builds. Use the current `v0.1.18` rather than adding task-order patches.
+- Versions before `v0.1.15` could query a mapped Bundle Provider too early in some builds. `v0.1.15` fixed this issue; use the current `v0.1.18` rather than adding task-order patches.
 - `v0.1.16` fixed immutable Gradle collection handling for file filters and removed unsafe default ARM64 filtering.
 - `v0.1.17` fixes metadata filtering when Bundletool exposes relative paths. A `BUNDLE-METADATA/*` filter rule now matches correctly when explicitly configured.
 - `v0.1.18` removes an unrelocated Commons IO 2.6 copy from the core JAR, preventing build-tool classpath conflicts during Android SDK package installation.
